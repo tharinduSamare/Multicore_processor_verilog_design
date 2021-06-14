@@ -1,15 +1,15 @@
 module incRegister 
-#(parameter width = 12 )  //default size of a register is 12
+#(parameter WIDTH = 12 )  //default size of a register is 12
 (
-    input [width-1:0]dataIn,
-    input wrEn,rst,clk,incEn,
-    output [width-1:0]dataOut
+    input [WIDTH-1:0]dataIn,
+    input wrEn,rstN,clk,incEn,
+    output [WIDTH-1:0]dataOut
 );
 
-reg [width-1:0]value;
+reg [WIDTH-1:0]value;
 
-always @(posedge clk or negedge rst) begin
-    if (~rst)
+always @(posedge clk) begin
+    if (~rstN)
         value <= 0;
     else if (wrEn)
         value <= dataIn;
