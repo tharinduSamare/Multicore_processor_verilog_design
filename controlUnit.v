@@ -1,5 +1,9 @@
-module controlUnit (
-    input clk,rst,start,Zout,
+module controlUnit 
+#(
+    parameter IR_WIDTH = 8
+)
+(
+    input clk,rstN,start,Zout,
     input [7:0]ins,
     output reg [2:0]aluOp,
     output reg [3:0]incReg,    // {PC, RC, RP, RQ}
@@ -83,55 +87,75 @@ localparam  IDLE = 6'd0,  //states
 
             MV_AC_RL1 = 6'd36;
 
-localparam  clr_alu = 3'd0,   //alu operations
-            pass_alu = 3'd1,
-            add_alu =  3'd2,
-            sub_alu =  3'd3,
-            mul_alu =  3'd4,
-            inc_alu =  3'd5,
-            idle_alu = 3'dx;
+localparam  clr_alu  =  3'd0,   //alu operations
+            pass_alu =  3'd1,
+            add_alu  =  3'd2,
+            sub_alu  =  3'd3,
+            mul_alu  =  3'd4,
+            inc_alu  =  3'd5,
+            idle_alu =  3'dx;
 
 localparam  DMem_bus = 4'b0,   //multiplexer
-            R_bus = 4'd1,
-            IR_bus = 4'd2,
-            RL_bus = 4'd3,
-            RC_bus = 4'd4,
-            RP_bus = 4'd5,
-            RQ_bus = 4'd6,
-            R1_bus = 4'd7,
-            AC_bus = 4'd8,
+            R_bus    = 4'd1,
+            IR_bus   = 4'd2,
+            RL_bus   = 4'd3,
+            RC_bus   = 4'd4,
+            RP_bus   = 4'd5,
+            RQ_bus   = 4'd6,
+            R1_bus   = 4'd7,
+            AC_bus   = 4'd8,
             idle_bus = 4'd9;
 
 localparam   //instruction set (assemly instructions and their machine codes)
-            NOP	=8'd0,
-            ENDOP=	8'd1,
-            CLAC=	8'd2,
-            LDIAC=	8'd3,
-            LDAC=	8'd4,
-            STR=	8'd5,
-            STIR=	8'd6,
-            JUMP=	8'd7,
-            JMPNZ=	8'd8,
-            JMPZ=	8'd9,
-            MUL	=8'd10,
-            ADD	=8'd11,
-            SUB	=8'd12,
-            INCAC	=8'd13,
-            MV_RL_AC=	{4'd1,4'd15},
-            MV_RP_AC=	{4'd2,4'd15},
-            MV_RQ_AC=	{4'd3,4'd15},
-            MV_RC_AC=	{4'd4,4'd15},
-            MV_R_AC =	{4'd5,4'd15},
-            MV_R1_AC=	{4'd6,4'd15},
-            MV_AC_RP=	{4'd7,4'd15},
-            MV_AC_RQ=	{4'd8,4'd15},
-            MV_AC_RL=	{4'd9,4'd15};
+            NOP	     =  8'd0,
+            ENDOP    =	8'd1,
+            CLAC     =	8'd2,
+            LDIAC    =	8'd3,
+            LDAC     =	8'd4,
+            STR      =	8'd5,
+            STIR     =	8'd6,
+            JUMP     =	8'd7,
+            JMPNZ    =	8'd8,
+            JMPZ     =	8'd9,
+            MUL	     =  8'd10,
+            ADD	     =  8'd11,
+            SUB	     =  8'd12,
+            INCAC    =  8'd13,
+            MV_RL_AC =	{4'd1,4'd15},
+            MV_RP_AC =	{4'd2,4'd15},
+            MV_RQ_AC =	{4'd3,4'd15},
+            MV_RC_AC =	{4'd4,4'd15},
+            MV_R_AC  =	{4'd5,4'd15},
+            MV_R1_AC =	{4'd6,4'd15},
+            MV_AC_RP =	{4'd7,4'd15},
+            MV_AC_RQ =	{4'd8,4'd15},
+            MV_AC_RL =	{4'd9,4'd15};
 
+localparam [9:0]
+    no_wrEn = 10'b0000000000,
+    AR_wrEn = 10'b1000000000,
+    R_wrEn  = 10'b0100000000,
+    PC_wrEn = 10'b0010000000,
+    IR_wrEn = 10'b0001000000,
+    RL_wrEn = 10'b0000100000,
+    RC_wrEn = 10'b0000010000,
+    RP_wrEn = 10'b0000001000,
+    RQ_wrEn = 10'b0000000100,
+    R1_wrEn = 10'b0000000010,
+    AC_wrEn = 10'b0000000001;
+
+localparam [3:0]
+    no_inc = 4'b0000,
+    PC_inc = 4'b1000,
+    RC_inc = 4'b0100,
+    RP_inc = 4'b0010,
+    RQ_inc = 4'b0001,
+    RC_RP_RQ_inc = 4'b0111;
 
 reg [5:0]currentState, nextState;
 
-always @(posedge clk or negedge rst) begin
-    if (~rst) begin
+always @(posedge clk) begin
+    if (~rstN) begin
         currentState <= IDLE;
     end
     else begin
@@ -189,7 +213,7 @@ always @(start, Zout, ins, currentState) begin
         FETCH_DELAY1: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0001000000;
+            wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -199,7 +223,7 @@ always @(start, Zout, ins, currentState) begin
         FETCH1: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0001000000;
+            wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -208,7 +232,7 @@ always @(start, Zout, ins, currentState) begin
 
         FETCH2: begin
             aluOp <= idle_alu;
-            incReg <= 4'b1000;
+            incReg <= PC_inc;
             wrEnReg <= 10'd0;
             busSel <= 4'd0;
             dMemWrEn <= 1'b0;
@@ -246,7 +270,7 @@ always @(start, Zout, ins, currentState) begin
         LDIAC_DELAY1: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0001000000;
+            wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -256,7 +280,7 @@ always @(start, Zout, ins, currentState) begin
         LDIAC1: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0001000000;
+            wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -265,8 +289,8 @@ always @(start, Zout, ins, currentState) begin
 
         LDIAC2: begin
             aluOp <= idle_alu;
-            incReg <= 4'b1000;
-            wrEnReg <= 10'b1000000000;
+            incReg <= PC_inc;
+            wrEnReg <= AR_wrEn;
             busSel <= IR_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -275,8 +299,8 @@ always @(start, Zout, ins, currentState) begin
 
         LDIAC_DELAY2: begin
             aluOp <= pass_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000001;
+            incReg <= no_inc;
+            wrEnReg <= AC_wrEn;
             busSel <= DMem_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
@@ -285,8 +309,8 @@ always @(start, Zout, ins, currentState) begin
 
         LDIAC3: begin
             aluOp <= pass_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000001;
+            incReg <= no_inc;
+            wrEnReg <= AC_wrEn;
             busSel <= DMem_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
@@ -295,8 +319,8 @@ always @(start, Zout, ins, currentState) begin
 
         LDAC1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b1000000000;
+            incReg <= no_inc;
+            wrEnReg <= AR_wrEn;
             busSel <= AC_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -305,8 +329,8 @@ always @(start, Zout, ins, currentState) begin
 
         LDAC_DELAY1: begin
             aluOp <= pass_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000001;
+            incReg <= no_inc;
+            wrEnReg <= AC_wrEn;
             busSel <= DMem_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
@@ -315,8 +339,8 @@ always @(start, Zout, ins, currentState) begin
 
         LDAC2: begin
             aluOp <= pass_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000001;
+            incReg <= no_inc;
+            wrEnReg <= AC_wrEn;
             busSel <= DMem_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
@@ -325,8 +349,8 @@ always @(start, Zout, ins, currentState) begin
 
         STR1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b1000000000;
+            incReg <= no_inc;
+            wrEnReg <= AR_wrEn;
             busSel <= AC_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -335,8 +359,8 @@ always @(start, Zout, ins, currentState) begin
 
         STR_DELAY1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000000;
+            incReg <= no_inc;
+            wrEnReg <= no_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b1;
             ZWrEn <= 1'b0;
@@ -345,8 +369,8 @@ always @(start, Zout, ins, currentState) begin
 
         STR2: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000000;
+            incReg <= no_inc;
+            wrEnReg <= no_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b1;
             ZWrEn <= 1'b0;
@@ -355,8 +379,8 @@ always @(start, Zout, ins, currentState) begin
 
         STIR_DELAY1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0001000000;
+            incReg <= no_inc;
+            wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -365,8 +389,8 @@ always @(start, Zout, ins, currentState) begin
 
         STIR1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0001000000;
+            incReg <= no_inc;
+            wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -375,8 +399,8 @@ always @(start, Zout, ins, currentState) begin
 
         STIR2: begin
             aluOp <= idle_alu;
-            incReg <= 4'b1000;
-            wrEnReg <= 10'b1000000000;
+            incReg <= PC_inc;
+            wrEnReg <= AR_wrEn;
             busSel <= IR_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -385,8 +409,8 @@ always @(start, Zout, ins, currentState) begin
 
         STIR_DELAY2: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000000;
+            incReg <= no_inc;
+            wrEnReg <= no_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b1;
             ZWrEn <= 1'b0;
@@ -395,8 +419,8 @@ always @(start, Zout, ins, currentState) begin
 
         STIR3: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000000;
+            incReg <= no_inc;
+            wrEnReg <= no_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b1;
             ZWrEn <= 1'b0;
@@ -406,7 +430,7 @@ always @(start, Zout, ins, currentState) begin
         JUMP_DELAY1: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0001000000;
+            wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -416,7 +440,7 @@ always @(start, Zout, ins, currentState) begin
         JUMP1: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0001000000;
+            wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -426,7 +450,7 @@ always @(start, Zout, ins, currentState) begin
         JUMP2: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0010000000;
+            wrEnReg <= PC_wrEn;
             busSel <= IR_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -436,7 +460,7 @@ always @(start, Zout, ins, currentState) begin
         JMPNZY_DILAY1: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0001000000;
+            wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -446,7 +470,7 @@ always @(start, Zout, ins, currentState) begin
         JMPNZY1: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0001000000;
+            wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -456,7 +480,7 @@ always @(start, Zout, ins, currentState) begin
         JMPNZY2: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0010000000;
+            wrEnReg <= PC_wrEn;
             busSel <= IR_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -465,8 +489,8 @@ always @(start, Zout, ins, currentState) begin
 
         JMPNZN1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b1000;
-            wrEnReg <= 10'b0000000000;
+            incReg <= PC_inc;
+            wrEnReg <= no_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -476,7 +500,7 @@ always @(start, Zout, ins, currentState) begin
         JMPZY_DELAY1: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0001000000;
+            wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -486,7 +510,7 @@ always @(start, Zout, ins, currentState) begin
         JMPZY1: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0001000000;
+            wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -496,7 +520,7 @@ always @(start, Zout, ins, currentState) begin
         JMPZY2: begin
             aluOp <= idle_alu;
             incReg <= 4'd0;
-            wrEnReg <= 10'b0010000000;
+            wrEnReg <= PC_wrEn;
             busSel <= IR_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -505,8 +529,8 @@ always @(start, Zout, ins, currentState) begin
 
         JMPZN1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b1000;
-            wrEnReg <= 10'b0000000000;
+            incReg <= PC_inc;
+            wrEnReg <= no_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -515,8 +539,8 @@ always @(start, Zout, ins, currentState) begin
 
         MUL1: begin
             aluOp <= mul_alu;
-            incReg <= 4'b0111;
-            wrEnReg <= 10'b0000000001;
+            incReg <= RC_RP_RQ_inc;
+            wrEnReg <= AC_wrEn;
             busSel <= R1_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
@@ -525,8 +549,8 @@ always @(start, Zout, ins, currentState) begin
 
         ADD1: begin
             aluOp <= add_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000001;
+            incReg <= no_inc;
+            wrEnReg <= AC_wrEn;
             busSel <= R_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
@@ -535,8 +559,8 @@ always @(start, Zout, ins, currentState) begin
 
         SUB1: begin
             aluOp <= sub_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000001;
+            incReg <= no_inc;
+            wrEnReg <= AC_wrEn;
             busSel <= RC_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
@@ -545,8 +569,8 @@ always @(start, Zout, ins, currentState) begin
 
         INCAC1: begin
             aluOp <= inc_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000001;
+            incReg <= no_inc;
+            wrEnReg <= AC_wrEn;
             busSel <= idle_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
@@ -555,8 +579,8 @@ always @(start, Zout, ins, currentState) begin
 
         MV_RL_AC1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000100000;
+            incReg <= no_inc;
+            wrEnReg <= RL_wrEn;
             busSel <= AC_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -565,8 +589,8 @@ always @(start, Zout, ins, currentState) begin
 
         MV_RP_AC1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000001000;
+            incReg <= no_inc;
+            wrEnReg <= RP_wrEn;
             busSel <= AC_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -575,8 +599,8 @@ always @(start, Zout, ins, currentState) begin
 
         MV_RQ_AC1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000100;
+            incReg <= no_inc;
+            wrEnReg <= RQ_wrEn;
             busSel <= AC_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -585,8 +609,8 @@ always @(start, Zout, ins, currentState) begin
 
         MV_RC_AC1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000010000;
+            incReg <= no_inc;
+            wrEnReg <= RC_wrEn;
             busSel <= AC_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -595,8 +619,8 @@ always @(start, Zout, ins, currentState) begin
 
         MV_R_AC1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0100000000;
+            incReg <= no_inc;
+            wrEnReg <= R_wrEn;
             busSel <= AC_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -605,8 +629,8 @@ always @(start, Zout, ins, currentState) begin
 
         MV_R1_AC1: begin
             aluOp <= idle_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000010;
+            incReg <= no_inc;
+            wrEnReg <= R1_wrEn;
             busSel <= AC_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
@@ -615,8 +639,8 @@ always @(start, Zout, ins, currentState) begin
 
         MV_AC_RP1: begin
             aluOp <= pass_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000001;
+            incReg <= no_inc;
+            wrEnReg <= AC_wrEn;
             busSel <= RP_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
@@ -625,8 +649,8 @@ always @(start, Zout, ins, currentState) begin
 
         MV_AC_RQ1: begin
             aluOp <= pass_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000001;
+            incReg <= no_inc;
+            wrEnReg <= AC_wrEn;
             busSel <= RQ_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
@@ -635,8 +659,8 @@ always @(start, Zout, ins, currentState) begin
 
         MV_AC_RL1: begin
             aluOp <= pass_alu;
-            incReg <= 4'b0000;
-            wrEnReg <= 10'b0000000001;
+            incReg <= no_inc;
+            wrEnReg <= AC_wrEn;
             busSel <= RL_bus;
             dMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
