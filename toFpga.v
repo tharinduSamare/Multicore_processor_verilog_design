@@ -7,7 +7,7 @@ module toFpga (
     output [6:0]HEX0,HEX1,HEX2, HEX3, HEX4,HEX5, HEX6, HEX7 
 );
 
-localparam CORE_COUNT = 2;
+localparam CORE_COUNT = 1;
 localparam REG_WIDTH = 12;
 localparam DATA_MEM_WIDTH = CORE_COUNT * REG_WIDTH;
 localparam INS_WIDTH = 8;
@@ -142,11 +142,11 @@ multi_core_processor #(.REG_WIDTH(REG_WIDTH), .INS_WIDTH(INS_WIDTH), .CORE_COUNT
 
 ////////////instantiation of memory modules for data and instruction memory
 
-insMem #(.DATA_WIDTH(INS_WIDTH), .ADDR_WIDTH(INS_MEM_ADDR_WIDTH), .DEPTH(INS_MEM_DEPTH))
+RAM #(.DATA_WIDTH(INS_WIDTH), .ADDR_WIDTH(INS_MEM_ADDR_WIDTH), .DEPTH(INS_MEM_DEPTH))
                 IM(.address(insMemAddr), .clk(clk), .dataIn(InsMemIn), .wrEn(uart_InsMemWrEn), 
                 .dataOut(InsMemOut)); // size = (256 x 8)
 
-dataMem #(.DATA_WIDTH(DATA_MEM_WIDTH), .ADDR_WIDTH(DATA_MEM_ADDR_WIDTH)) 
+RAM #(.DATA_WIDTH(DATA_MEM_WIDTH), .ADDR_WIDTH(DATA_MEM_ADDR_WIDTH), .DEPTH(DATA_MEM_DEPTH)) 
                 DM(.address(dataMemAddr), .clk(clk), .dataIn(DataMemIn), .wrEn(dataMemWrEn), 
                 .dataOut(DataMemOut)); // size = (4096 x 48)
 
@@ -215,15 +215,6 @@ hex_display HD(.clk(clk), .rstN(rstN), .state(currentState),
             .start_timeValue_convetion(~uart_DataMem_transmitted), .timeValue(currentTime), 
             .out0(HEX0), .out1(HEX1), .out2(HEX2),.out3(HEX3),.out4(HEX4),
             .out5(HEX5), .out6(HEX6), .out7(HEX7));
-
-// reg [47:0]mem_check[4095:0];
-
-// wire [47:0]a;
-// assign  a = mem_check[0];
-// assign LEDG = a[7:0];
-// dataMem #(.data_width(DATA_MEM_WIDTH), .address_width(DATA_MEM_ADDR_WIDTH))
-//                 DM(.address({DATA_MEM_ADDR_WIDTH{1'b0}}), .clock(clk), .data(8'd4), .wren(1'b0), 
-//                 .q(a)); // size = (4096 x 48)
 
 endmodule //toFpga
 

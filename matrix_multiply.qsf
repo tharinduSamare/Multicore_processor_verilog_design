@@ -585,30 +585,6 @@ set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
-set_global_assignment -name VERILOG_FILE multi_core_processor.v
-set_global_assignment -name VERILOG_FILE timeCounter.v
-set_global_assignment -name VERILOG_FILE uart_transmitter.v
-set_global_assignment -name VERILOG_FILE uart_system.v
-set_global_assignment -name VERILOG_FILE uart_receiver.v
-set_global_assignment -name VERILOG_FILE uart_mem_interface.v
-set_global_assignment -name VERILOG_FILE uart_encoder_decoder.v
-set_global_assignment -name VERILOG_FILE uart_boudRateGen.v
-set_global_assignment -name VERILOG_FILE SSeg.v
-set_global_assignment -name VERILOG_FILE binaryToBCD.v
-set_global_assignment -name VERILOG_FILE BCDtoHEX.v
-set_global_assignment -name VERILOG_FILE register.v
-set_global_assignment -name VERILOG_FILE incRegister.v
-set_global_assignment -name VERILOG_FILE ALU.v
-set_global_assignment -name VERILOG_FILE multiplexer.v
-set_global_assignment -name VERILOG_FILE zReg.v
-set_global_assignment -name VERILOG_FILE dataMem.v
-set_global_assignment -name VERILOG_FILE insMem.v
-set_global_assignment -name VERILOG_FILE controlUnit.v
-set_global_assignment -name VERILOG_FILE processor.v
-set_global_assignment -name VERILOG_FILE toFpga.v
-set_global_assignment -name QIP_FILE IP_dataMem.qip
-set_global_assignment -name QIP_FILE IP_insMem.qip
-set_global_assignment -name VERILOG_FILE hex_display.v
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to AUD_ADCDAT
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to AUD_ADCLRCK
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to AUD_BCLK
@@ -1137,4 +1113,27 @@ set_instance_assignment -name IO_STANDARD LVDS -to HSMC_CLKOUT_N1
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name VERILOG_FILE RAM.v
+set_global_assignment -name VERILOG_FILE multi_core_processor.v
+set_global_assignment -name VERILOG_FILE timeCounter.v
+set_global_assignment -name VERILOG_FILE uart_transmitter.v
+set_global_assignment -name VERILOG_FILE uart_system.v
+set_global_assignment -name VERILOG_FILE uart_receiver.v
+set_global_assignment -name VERILOG_FILE uart_mem_interface.v
+set_global_assignment -name VERILOG_FILE uart_encoder_decoder.v
+set_global_assignment -name VERILOG_FILE uart_boudRateGen.v
+set_global_assignment -name VERILOG_FILE SSeg.v
+set_global_assignment -name VERILOG_FILE binaryToBCD.v
+set_global_assignment -name VERILOG_FILE BCDtoHEX.v
+set_global_assignment -name VERILOG_FILE register.v
+set_global_assignment -name VERILOG_FILE incRegister.v
+set_global_assignment -name VERILOG_FILE ALU.v
+set_global_assignment -name VERILOG_FILE multiplexer.v
+set_global_assignment -name VERILOG_FILE zReg.v
+set_global_assignment -name VERILOG_FILE controlUnit.v
+set_global_assignment -name VERILOG_FILE processor.v
+set_global_assignment -name VERILOG_FILE toFpga.v
+set_global_assignment -name QIP_FILE IP_dataMem.qip
+set_global_assignment -name QIP_FILE IP_insMem.qip
+set_global_assignment -name VERILOG_FILE hex_display.v
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

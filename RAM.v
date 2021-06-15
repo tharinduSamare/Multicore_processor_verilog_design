@@ -1,4 +1,4 @@
-module insMem 
+module RAM 
 #(
     parameter DATA_WIDTH = 12,
     parameter DEPTH = 256,
@@ -21,4 +21,4 @@ always @(posedge clk) begin
     dataOut <= memory[address];
 end
 
-endmodule //insMem
+endmodule //RAM
