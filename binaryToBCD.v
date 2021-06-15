@@ -1,6 +1,6 @@
 module binaryToBCD(
     input [25:0]binaryValue,                    // to get 8 digit output need 26.57 input bits (26) {can not exeed 26.57}
-    input clk,rst,start,
+    input clk,rstN,start,
     output reg ready, done,
     output reg [3:0]digit7,digit6,digit5,digit4,digit3,digit2,digit1,digit0
 );
@@ -16,8 +16,8 @@ reg [31:0]currentValue,nextValue;
 reg [1:0]currentState,nextState;
 reg [25:0]currentInput,nextInput;
 
-always @(posedge clk,negedge rst) begin
-    if (!rst) begin
+always @(posedge clk,negedge rstN) begin
+    if (~rstN) begin
         currentCount <= 5'b0;
         currentValue <= 32'b0;
         currentState <= idle;

@@ -1,31 +1,28 @@
 module uart_encoder_decoder 
 #(
-    parameter data_width = 12 // width of memory word
+    parameter DATA_WIDTH = 12, // width of memory word
+    parameter UART_WIDTH = 8
 )
 (
-    input [data_width-1:0]dataFromMem,
-    input clk,rst,txStart,
+    input [DATA_WIDTH-1:0]dataFromMem,
+    input clk,rstN,txStart,
     output txReady,rxDone,
-    output [data_width-1:0]dataToMem,
+    output [DATA_WIDTH-1:0]dataToMem,
     output new_rx_data_indicate,
 
     //////////////////////// inputs outputs for the UART system
     input txByteReady,
     output txByteStart,
-    output [7:0]byteForTx,
+    output [UART_WIDTH-1:0]byteForTx,
 
-    input [7:0]byteFromRx,
+    input [UART_WIDTH-1:0]byteFromRx,
     input rxByteReady,new_rx_byte_indicate
 );
 
-
-localparam  extra = ((data_width % 8) == 0)?0:1;
-localparam count = (data_width/8) + extra;
-localparam bufferWidth = count * 8;
-localparam counterLength = (count<=4)? 2:
-                            (count <= 8)? 3:
-                            (count <= 16)? 4:
-                            5;     // maximum dataWord width = (2**5)*8 = 160 (= 12 * 13 {13 cores can be used maximumly})
+localparam EXTRA = ((DATA_WIDTH % UART_WIDTH) == 0)?0:1;
+localparam COUNT = (DATA_WIDTH/UART_WIDTH) + EXTRA;
+localparam BUFFER_WIDTH = COUNT * UART_WIDTH;
+localparam COUNTER_LENGTH = (COUNT == 1)? 1:$clog2(COUNT);
 
 localparam [2:0]
             idle = 3'd0,
@@ -37,17 +34,17 @@ localparam [2:0]
             receive_3 = 3'd6;
 
 reg [2:0]currentState, nextState;
-reg [bufferWidth-1:0]currentTxBuffer, nextTxBuffer;
-reg [bufferWidth-1:0]currentRxBuffer, nextRxBuffer;
-reg [counterLength-1:0]currentTxCount, nextTxCount;
-reg [counterLength-1:0]currentRxCount, nextRxCount;
+reg [BUFFER_WIDTH-1:0]currentTxBuffer, nextTxBuffer;
+reg [BUFFER_WIDTH-1:0]currentRxBuffer, nextRxBuffer;
+reg [COUNTER_LENGTH-1:0]currentTxCount, nextTxCount;
+reg [COUNTER_LENGTH-1:0]currentRxCount, nextRxCount;
 
-always @(posedge clk or negedge rst) begin
-    if (!rst) begin
-        currentTxBuffer <= {bufferWidth{1'b0}};
-        currentRxBuffer <= {bufferWidth{1'b0}};
-        currentTxCount <= {counterLength{1'b0}};
-        currentRxCount <= {counterLength{1'b0}};
+always @(posedge clk or negedge rstN) begin
+    if (!rstN) begin
+        currentTxBuffer <= {BUFFER_WIDTH{1'b0}};
+        currentRxBuffer <= {BUFFER_WIDTH{1'b0}};
+        currentTxCount <= {COUNTER_LENGTH{1'b0}};
+        currentRxCount <= {COUNTER_LENGTH{1'b0}};
         currentState <= idle;
     end
     else begin
@@ -68,11 +65,11 @@ always @(*) begin
 
     case (currentState)
         idle: begin
-            nextTxCount = {counterLength{1'b0}};
-            nextRxCount = {counterLength{1'b0}};
+            nextTxCount = {COUNTER_LENGTH{1'b0}};
+            nextRxCount = {COUNTER_LENGTH{1'b0}};
             if (new_rx_byte_indicate) begin  //receiver indicates a arrival of new byte
                 nextState = receive_1;
-                nextRxBuffer = {bufferWidth{1'b0}};
+                nextRxBuffer = {BUFFER_WIDTH{1'b0}};
             end
             else if (txStart == 1'b0) begin
                 nextState = transmit_1;
@@ -87,31 +84,35 @@ always @(*) begin
 
         transmit_2: begin           // end of the byte transmission
             if (txByteReady) begin
-                nextTxCount = currentTxCount + 1'b1;
-                if ((currentTxCount == count-1 ) || (bufferWidth == 8))  
+                if (BUFFER_WIDTH == UART_WIDTH) begin
                     nextState = idle;
+                end    
                 else begin
-                    nextTxBuffer = {8'b0,currentTxBuffer[bufferWidth-1:8]};
-                    nextState = transmit_1;
+                    nextTxCount = currentTxCount + 1'b1;
+                    if (currentTxCount == COUNT-1 )   
+                        nextState = idle;
+                    else begin
+                        nextTxBuffer = currentTxBuffer >> UART_WIDTH;
+                        nextState = transmit_1;
+                    end
                 end
-                    
             end
         end
 
-        receive_0: begin           // to give a extra time to make rxByteReady to become 1'b0
+        receive_0: begin           // to give a EXTRA time to make rxByteReady to become 1'b0
             nextState = receive_1;
         end
 
         receive_1 : begin
             if(rxByteReady) begin
                 nextRxCount = currentRxCount + 1'b1;
-                if (bufferWidth == 8) begin
+                if (BUFFER_WIDTH == 8) begin
                     nextRxBuffer = byteFromRx;
                     nextState = idle;
                 end
                 else begin
-                    nextRxBuffer = {byteFromRx,currentRxBuffer[bufferWidth-1:8]};
-                    if (currentRxCount == (count-1))
+                    nextRxBuffer = {byteFromRx,currentRxBuffer[BUFFER_WIDTH-1:8]};
+                    if (currentRxCount == (COUNT-1))
                         nextState = idle;
                     else
                         nextState = receive_2;
@@ -124,7 +125,7 @@ always @(*) begin
                 nextState = receive_3;
         end
 		  
-        receive_3: begin              // to give a extra time to make rxByteReady to become 1'b0
+        receive_3: begin              // to give a EXTRA time to make rxByteReady to become 1'b0
             nextState = receive_1;
         end
         
@@ -134,9 +135,9 @@ end
 
 assign txByteStart = (currentState == transmit_1)? 1'b0: 1'b1;
 assign txReady = (currentState == idle)? 1'b1 : 1'b0;
-assign byteForTx = currentTxBuffer[7:0];
-assign rxDone = ((currentState == receive_1) && (rxByteReady == 1'b1) && (currentRxCount == count-1 ))? 1'b1 : 1'b0;
-assign dataToMem = currentRxBuffer[data_width-1:0];
+assign byteForTx = currentTxBuffer[UART_WIDTH-1:0];
+assign rxDone = ((currentState == receive_1) && (rxByteReady == 1'b1) && (currentRxCount == COUNT-1 ))? 1'b1 : 1'b0;
+assign dataToMem = currentRxBuffer[DATA_WIDTH-1:0];
 assign new_rx_data_indicate = ((currentState == idle) && (new_rx_byte_indicate))? 1'b1: 1'b0; //arrival of new data set
 
 

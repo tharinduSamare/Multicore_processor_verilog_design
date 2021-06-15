@@ -1,8 +1,10 @@
 module uart_transmitter 
-
+#(
+    parameter DATA_WIDTH = 8
+)
 (
-    input [7:0]dataIn,
-    input clk, boudTick,rst,txStart,
+    input [DATA_WIDTH-1:0]dataIn,
+    input clk, baudTick,rstN,txStart,
     output tx,TxReady
 );
 
@@ -13,18 +15,18 @@ localparam [1:0]
                 stop = 2'd3;
 
 reg [1:0]currentState, nextState;
-reg [7:0]currentData, nextData;
+reg [DATA_WIDTH-1:0]currentData, nextData;
 reg currentBit, nextBit;
 reg [2:0]currentCount, nextCount;
 reg [3:0]currentTick, nextTick;
 
 
-always @(posedge clk or negedge rst) begin
-    if (~rst) begin
+always @(posedge clk or negedge rstN) begin
+    if (~rstN) begin
         currentTick <= 4'b0;
         currentCount <= 3'b0;
         currentState <= idle;
-        currentData <= 8'd0;
+        currentData <= 0;
         currentBit <= 1'b1;
     end
     else begin
@@ -56,7 +58,7 @@ always @(*) begin
         end
 
         start: begin
-            if (boudTick) begin
+            if (baudTick) begin
                 nextTick = currentTick + 4'b1;
                 if (currentTick == 4'd15) begin
                     nextState = data;
@@ -67,7 +69,7 @@ always @(*) begin
         end
 
         data: begin
-            if (boudTick) begin
+            if (baudTick) begin
                 nextTick = currentTick + 4'b1;
                 if (currentTick == 15) begin
                     nextCount = currentCount + 3'b1;
@@ -81,7 +83,7 @@ always @(*) begin
         end
 
         stop: begin
-            if (boudTick) begin
+            if (baudTick) begin
                 nextTick = currentTick + 4'b1;
                 if (currentTick == 4'd15)
                     nextState = idle;

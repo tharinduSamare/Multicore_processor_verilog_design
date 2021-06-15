@@ -38,7 +38,7 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE115F29C7
-set_global_assignment -name TOP_LEVEL_ENTITY processor
+set_global_assignment -name TOP_LEVEL_ENTITY toFpga
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 18.1.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "12:20:41  AUGUST 30, 2020"
 set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
@@ -585,6 +585,7 @@ set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name VERILOG_FILE multi_core_processor.v
 set_global_assignment -name VERILOG_FILE timeCounter.v
 set_global_assignment -name VERILOG_FILE uart_transmitter.v
 set_global_assignment -name VERILOG_FILE uart_system.v
@@ -608,9 +609,6 @@ set_global_assignment -name VERILOG_FILE toFpga.v
 set_global_assignment -name QIP_FILE IP_dataMem.qip
 set_global_assignment -name QIP_FILE IP_insMem.qip
 set_global_assignment -name VERILOG_FILE hex_display.v
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to AUD_ADCDAT
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to AUD_ADCLRCK
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to AUD_BCLK
@@ -1136,4 +1134,7 @@ set_instance_assignment -name IO_STANDARD LVDS -to HSMC_TX_D_N[16]
 set_instance_assignment -name IO_STANDARD LVDS -to HSMC_RX_D_N[16]
 set_instance_assignment -name IO_STANDARD LVDS -to HSMC_CLKOUT_N2
 set_instance_assignment -name IO_STANDARD LVDS -to HSMC_CLKOUT_N1
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

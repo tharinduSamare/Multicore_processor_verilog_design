@@ -1,5 +1,5 @@
 module hex_display (
-    input clk, rst, 
+    input clk, rstN, 
     input [2:0]state,
     input start_timeValue_convetion, 
     input [25:0]timeValue,
@@ -51,7 +51,7 @@ BCDtoHEX BtH(.in0(x0), .in1(x1), .in2(x2),.in3(x3),.in4(x4),.in5(x5),.in6(x6),.i
             .out0(out0), .out1(out1), .out2(out2),.out3(out3),.out4(out4),.out5(out5),
             .out6(out6),.out7(out7));
 
-binaryToBCD timeConverter(.binaryValue(timeValue),.clk(clk),.rst(rst),
+binaryToBCD timeConverter(.binaryValue(timeValue),.clk(clk),.rstN(rstN),
                         .start(start_timeValue_convetion), .done(),.ready(), 
                         .digit7(y7),.digit6(y6),.digit5(y5),.digit4(y4),
                         .digit3(y3),.digit2(y2),.digit1(y1),.digit0(y0));

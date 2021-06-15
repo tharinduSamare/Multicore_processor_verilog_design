@@ -9,7 +9,7 @@ module controlUnit
     output reg [3:0]incReg,    // {PC, RC, RP, RQ}
     output reg [9:0]wrEnReg,   // {AR, R, PC, IR, RL, RC, RP, RQ, R1, AC}
     output reg [3:0]busSel,
-    output reg dMemWrEn,ZWrEn,
+    output reg DataMemWrEn,ZWrEn,
     output done,ready
 );
 
@@ -171,7 +171,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= 10'd0;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
 
             if (~start)
@@ -185,7 +185,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= 10'd0;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH1;
         end
@@ -195,7 +195,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= 10'd0;
             busSel <= DMem_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= ENDOP1;
         end
@@ -205,7 +205,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= 10'd1;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= FETCH1;
         end
@@ -215,7 +215,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH1;
         end
@@ -225,7 +225,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH2;
         end
@@ -235,7 +235,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= PC_inc;
             wrEnReg <= 10'd0;
             busSel <= 4'd0;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             case (ins)   //has to deside what is the next state 
 
@@ -272,7 +272,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= LDIAC1;
         end
@@ -282,7 +282,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= LDIAC2;
         end
@@ -292,7 +292,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= PC_inc;
             wrEnReg <= AR_wrEn;
             busSel <= IR_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= LDIAC_DELAY2;
         end
@@ -302,7 +302,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AC_wrEn;
             busSel <= DMem_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= LDIAC3;
         end
@@ -312,7 +312,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AC_wrEn;
             busSel <= DMem_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= FETCH_DELAY1;
         end
@@ -322,7 +322,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AR_wrEn;
             busSel <= AC_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= LDAC_DELAY1;
         end
@@ -332,7 +332,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AC_wrEn;
             busSel <= DMem_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= LDAC2;
         end
@@ -342,7 +342,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AC_wrEn;
             busSel <= DMem_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= FETCH_DELAY1;
         end
@@ -352,7 +352,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AR_wrEn;
             busSel <= AC_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= STR_DELAY1;
         end
@@ -362,7 +362,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= no_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b1;
+            DataMemWrEn <= 1'b1;
             ZWrEn <= 1'b0;
             nextState <= STR2;
         end
@@ -372,7 +372,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= no_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b1;
+            DataMemWrEn <= 1'b1;
             ZWrEn <= 1'b0;
             nextState <= FETCH1;
         end
@@ -382,7 +382,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= STIR1;
         end
@@ -392,7 +392,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= IR_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= STIR2;
         end
@@ -402,7 +402,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= PC_inc;
             wrEnReg <= AR_wrEn;
             busSel <= IR_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= STIR_DELAY2;
         end
@@ -412,7 +412,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= no_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b1;
+            DataMemWrEn <= 1'b1;
             ZWrEn <= 1'b0;
             nextState <= STIR3;
         end
@@ -422,7 +422,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= no_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b1;
+            DataMemWrEn <= 1'b1;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -432,7 +432,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= JUMP1;
         end
@@ -442,7 +442,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= JUMP2;
         end
@@ -452,7 +452,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= PC_wrEn;
             busSel <= IR_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -462,7 +462,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= JMPNZY1;
         end
@@ -472,7 +472,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= JMPNZY2;
         end
@@ -482,7 +482,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= PC_wrEn;
             busSel <= IR_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -492,7 +492,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= PC_inc;
             wrEnReg <= no_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -502,7 +502,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= JMPZY1;
         end
@@ -512,7 +512,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= IR_wrEn;
             busSel <= 4'd0;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= JMPZY2;
         end
@@ -522,7 +522,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= PC_wrEn;
             busSel <= IR_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -532,7 +532,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= PC_inc;
             wrEnReg <= no_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -542,7 +542,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= RC_RP_RQ_inc;
             wrEnReg <= AC_wrEn;
             busSel <= R1_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= FETCH_DELAY1;
         end
@@ -552,7 +552,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AC_wrEn;
             busSel <= R_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= FETCH_DELAY1;
         end
@@ -562,7 +562,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AC_wrEn;
             busSel <= RC_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= FETCH_DELAY1;
         end
@@ -572,7 +572,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AC_wrEn;
             busSel <= idle_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= FETCH_DELAY1;
         end
@@ -582,7 +582,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= RL_wrEn;
             busSel <= AC_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -592,7 +592,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= RP_wrEn;
             busSel <= AC_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -602,7 +602,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= RQ_wrEn;
             busSel <= AC_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -612,7 +612,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= RC_wrEn;
             busSel <= AC_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -622,7 +622,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= R_wrEn;
             busSel <= AC_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -632,7 +632,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= R1_wrEn;
             busSel <= AC_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= FETCH_DELAY1;
         end
@@ -642,7 +642,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AC_wrEn;
             busSel <= RP_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= FETCH_DELAY1;
         end
@@ -652,7 +652,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AC_wrEn;
             busSel <= RQ_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= FETCH_DELAY1;
         end
@@ -662,7 +662,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= no_inc;
             wrEnReg <= AC_wrEn;
             busSel <= RL_bus;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b1;
             nextState <= FETCH_DELAY1;
         end
@@ -672,7 +672,7 @@ always @(start, Zout, ins, currentState) begin
             incReg <= 4'd0;
             wrEnReg <= 10'd0;
             busSel <= 4'd0;
-            dMemWrEn <= 1'b0;
+            DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
             nextState <= IDLE;
         end            

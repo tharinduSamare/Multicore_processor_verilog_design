@@ -3,14 +3,21 @@ module toFpga (
     input [1:0]KEY,
     input UART_RXD,
 	output UART_TXD,
-    output [7:0]LEDG,
+    output [1:0]LEDG,
     output [6:0]HEX0,HEX1,HEX2, HEX3, HEX4,HEX5, HEX6, HEX7 
 );
 
-localparam dataMemAddrLength = 12; //4096 locations
-localparam dataMemWordLength = 48; // 1_core -> 12 | 2_core -> 24 | 3_core -> 36 | 4_core -> 48 etc. 
-localparam insMemAddrLength = 8; //256 locations
-localparam insMemWordLength = 8;
+localparam CORE_COUNT = 2;
+localparam REG_WIDTH = 12;
+localparam DATA_MEM_WIDTH = CORE_COUNT * REG_WIDTH;
+localparam INS_WIDTH = 8;
+localparam INS_MEM_DEPTH = 256;
+localparam DATA_MEM_DEPTH = 4096;
+localparam DATA_MEM_ADDR_WIDTH = $clog2(DATA_MEM_DEPTH);
+localparam INS_MEM_ADDR_WIDTH = $clog2(INS_MEM_DEPTH);
+
+localparam BAUD_RATE = 115200;
+localparam UART_WIDTH = 8;
 
 localparam  idle = 3'd0,
             uart_receive_Imem = 3'd1,
@@ -20,31 +27,37 @@ localparam  idle = 3'd0,
             uart_transmit_dmem = 3'd5,
             finish = 3'd6;
 
-wire rst, clk;
-wire  processStart, processDone;
+////// logic related to data memory //////////
+wire [DATA_MEM_WIDTH-1:0]DataMemOut,DataMemIn, processor_DataOut, uart_DataOut;
+wire [DATA_MEM_ADDR_WIDTH-1:0]dataMemAddr, uart_dataMemAddr, processor_dataMemAddr;
 
-wire [dataMemWordLength-1:0]fromDataMem,toDataMem, processorDataOut, uartDataOut;
-wire [dataMemAddrLength-1:0]dataMemAddr, uart_dataMemAddr, processor_dataMemAddr;
+////// logic related to instruction memory ///////////
+wire [INS_WIDTH-1:0]InsMemOut, InsMemIn;
+wire [INS_MEM_ADDR_WIDTH-1:0]insMemAddr,uart_InsMemAddr, processor_InsMemAddr;
 
-wire [insMemWordLength-1:0]instructions, uartInsOut;
-wire [insMemAddrLength-1:0]insMemAddr,uart_InsMemAddr, processor_InsMemAddr;
-
-wire dMemWrEn,processor_dMemWrEn, uart_dMemWrEn;
+////// other logics ////////////
+wire dataMemWrEn,processor_DataMemWrEn, uart_dataMemWrEn;
 wire uart_InsMemWrEn;
+wire rstN, clk, startN;
+wire processStart, processDone, processor_ready;
 
 wire txReady, rxReady;
 wire new_byte_indicate, new_ins_byte_indicate, new_data_byte_indicate;
 wire txByteStart;
 
-wire [7:0]byteForTx, byteFromRx;
+wire [UART_WIDTH-1:0]byteForTx, byteFromRx;
 
 wire uart_DataMem_transmitted, uart_DataMem_received, uart_InsMem_received;
 wire uart_dmem_start_transmit;
 
+//////////////////////////////////////
+assign LEDG[1] = processDone;
+assign LEDG[0] = processor_ready;
+
 reg [2:0]currentState, nextState; 
 
-always @(posedge clk or negedge rst) begin
-    if (~rst) begin
+always @(posedge clk) begin
+    if (~rstN) begin
         currentState <= idle;
     end
     else begin
@@ -57,7 +70,7 @@ always @(*) begin
 
     case (currentState)
         idle: begin     // start state
-            if (~KEY[1]) begin
+            if (~startN) begin
                 nextState = uart_receive_Imem;
             end
         end
@@ -96,71 +109,60 @@ always @(*) begin
 end
 
 assign clk = CLOCK_50;
-assign rst = KEY[0];
+assign rstN = KEY[0];
+assign startN = KEY[1];
 assign processStart = ((currentState == uart_receive_dmem) && (uart_DataMem_received))? 1'b0: 1'b1;
 assign uart_dmem_start_transmit = ((currentState == process_exicute) && (processDone))? 1'b0: 1'b1;
 
-assign dMemWrEn = ((currentState == uart_receive_dmem) || (currentState == uart_transmit_dmem) )? uart_dMemWrEn:
-                    (currentState == process_exicute)? processor_dMemWrEn:
+assign dataMemWrEn = ((currentState == uart_receive_dmem) || (currentState == uart_transmit_dmem) )? uart_dataMemWrEn:
+                    (currentState == process_exicute)? processor_DataMemWrEn:
                     1'b0;
 
 assign dataMemAddr = ((currentState == uart_receive_dmem) || (currentState == uart_transmit_dmem) )? uart_dataMemAddr:
                     (currentState == process_exicute)? processor_dataMemAddr:
-                    {dataMemAddrLength{1'b0}};
+                    {DATA_MEM_ADDR_WIDTH{1'b0}};
 
-assign toDataMem = ((currentState == uart_receive_dmem) || (currentState == uart_transmit_dmem) )? uartDataOut:
-                    (currentState == process_exicute)? processorDataOut:
-                    {dataMemWordLength{1'b0}};
+assign DataMemIn = ((currentState == uart_receive_dmem) || (currentState == uart_transmit_dmem) )? uart_DataOut:
+                    (currentState == process_exicute)? processor_DataOut:
+                    {DATA_MEM_WIDTH{1'b0}};
 
 assign insMemAddr = (currentState == uart_receive_Imem)? uart_InsMemAddr:
                     (currentState == process_exicute)? processor_InsMemAddr:
-                    {insMemAddrLength{1'b0}};
+                    {INS_MEM_ADDR_WIDTH{1'b0}};
 
 assign new_ins_byte_indicate = (currentState == uart_receive_Imem)? new_byte_indicate: 1'b0;
 assign new_data_byte_indicate = (currentState == uart_receive_dmem)? new_byte_indicate: 1'b0;
 
-// This is a 4 core processor (No. of cores can be increased)   
-//4 cores (instances) are instantiated using processor module
 
-processor CORE_0(.clk(clk), .rst(rst), .start(processStart), .fromDataMem(fromDataMem[11:0]), 
-            .fromInsMem(instructions), .dataMemAddr(processor_dataMemAddr), .toDataMem(processorDataOut[11:0]), 
-            .insMemAddr(processor_InsMemAddr), .dMemWrEn(processor_dMemWrEn), .done(processDone), .ready());
+multi_core_processor #(.REG_WIDTH(REG_WIDTH), .INS_WIDTH(INS_WIDTH), .CORE_COUNT(CORE_COUNT), .DATA_MEM_ADDR_WIDTH(DATA_MEM_ADDR_WIDTH), .INS_MEM_ADDR_WIDTH(INS_MEM_ADDR_WIDTH))
+                    multi_core_processor(.clk(clk),.rstN(rstN),.start(processStart), .ProcessorDataIn(DataMemOut), .InsMemOut(InsMemOut), 
+                    .ProcessorDataOut(processor_DataOut), .insMemAddr(processor_InsMemAddr), .dataMemAddr(processor_dataMemAddr),
+                    .DataMemWrEn(processor_DataMemWrEn), .done(processDone), .ready(processor_ready));
 
-processor CORE_1(.clk(clk), .rst(rst), .start(processStart), .fromDataMem(fromDataMem[23:12]), 
-            .fromInsMem(instructions), .dataMemAddr(), .toDataMem(processorDataOut[23:12]), 
-            .insMemAddr(), .dMemWrEn(), .done(), .ready());
-
-processor CORE_2(.clk(clk), .rst(rst), .start(processStart), .fromDataMem(fromDataMem[35:24]), 
-            .fromInsMem(instructions), .dataMemAddr(), .toDataMem(processorDataOut[35:24]), 
-            .insMemAddr(), .dMemWrEn(), .done(), .ready());
-
-processor CORE_3(.clk(clk), .rst(rst), .start(processStart), .fromDataMem(fromDataMem[47:36]), 
-            .fromInsMem(instructions), .dataMemAddr(), .toDataMem(processorDataOut[47:36]), 
-            .insMemAddr(), .dMemWrEn(), .done(), .ready());
 
 ////////////instantiation of memory modules for data and instruction memory
 
-insMem #(.data_width(insMemWordLength), .address_width(insMemAddrLength))
-                IM(.address(insMemAddr), .clock(clk), .data(uartInsOut), .wren(uart_InsMemWrEn), 
-                .q(instructions)); // size = (256 x 8)
+insMem #(.DATA_WIDTH(INS_WIDTH), .ADDR_WIDTH(INS_MEM_ADDR_WIDTH), .DEPTH(INS_MEM_DEPTH))
+                IM(.address(insMemAddr), .clk(clk), .dataIn(InsMemIn), .wrEn(uart_InsMemWrEn), 
+                .dataOut(InsMemOut)); // size = (256 x 8)
 
-dataMem #(.data_width(dataMemWordLength), .address_width(dataMemAddrLength)) 
-                DM(.address(dataMemAddr), .clock(clk), .data(toDataMem), .wren(dMemWrEn), 
-                .q(fromDataMem)); // size = (4096 x 48)
+dataMem #(.DATA_WIDTH(DATA_MEM_WIDTH), .ADDR_WIDTH(DATA_MEM_ADDR_WIDTH)) 
+                DM(.address(dataMemAddr), .clk(clk), .dataIn(DataMemIn), .wrEn(dataMemWrEn), 
+                .dataOut(DataMemOut)); // size = (4096 x 48)
 
 
-// IP_insMem IP_IM(.address(insMemAddr), .clock(clk), .data(uartInsOut), .wren(uart_InsMemWrEn), 
-//                 .q(instructions));  // size = (256 x 8)
+// IP_insMem IP_IM(.address(insMemAddr), .clock(clk), .data(InsMemIn), .wren(uart_InsMemWrEn), 
+//                 .q(InsMemOut));  // size = (256 x 8)
 
-// IP_dataMem IP_DM(.address(dataMemAddr), .clock(clk), .data(toDataMem), .wren(dMemWrEn), 
-//                 .q(fromDataMem)); // size = (4096 x 48)
+// IP_dataMem IP_DM(.address(dataMemAddr), .clock(clk), .data(DataMemIn), .wren(dataMemWrEn), 
+//                 .q(DataMemOut)); // size = (4096 x 48)
 
-uart_mem_interface #(.memWordLength(dataMemWordLength), .memAddressLength(dataMemAddrLength)) 
-            dataMemInterface(.clk(clk), .rst(rst), .txStart(uart_dmem_start_transmit), 
+uart_mem_interface #(.MEM_WORD_LENGTH(DATA_MEM_WIDTH), .MEM_ADDR_LENGTH(DATA_MEM_ADDR_WIDTH), .UART_WIDTH(UART_WIDTH)) 
+            dataMemInterface(.clk(clk), .rstN(rstN), .txStart(uart_dmem_start_transmit), 
             .mem_transmitted(uart_DataMem_transmitted), .mem_received(uart_DataMem_received),
             ///input outputs with memory
-            .dataFromMem(fromDataMem), .memWrEn(uart_dMemWrEn), .mem_address(uart_dataMemAddr), 
-            .dataToMem(uartDataOut), 
+            .dataFromMem(DataMemOut), .memWrEn(uart_dataMemWrEn), .mem_address(uart_dataMemAddr), 
+            .dataToMem(uart_DataOut), 
             ///inputs outputs with uart system
             .txByteReady(txReady), .rxByteReady(rxReady), .new_rx_byte_indicate(new_data_byte_indicate), 
             .ByteFromUart(byteFromRx), .uartTxStart(txByteStart), .byteToUart(byteForTx),
@@ -168,12 +170,12 @@ uart_mem_interface #(.memWordLength(dataMemWordLength), .memAddressLength(dataMe
             .tx_start_addr_in(uartMemory[1]), .tx_end_addr_in(uartMemory[2]), 
             .rx_end_addr_in(uartMemory[0]), .toggle_addr_range(1'b1));
 
-uart_mem_interface #(.memWordLength(insMemWordLength), .memAddressLength(insMemAddrLength)) 
-            ImemInterface(.clk(clk), .rst(rst), .txStart(1'b1), .mem_transmitted(), 
+uart_mem_interface #(.MEM_WORD_LENGTH(INS_WIDTH), .MEM_ADDR_LENGTH(INS_MEM_ADDR_WIDTH), .UART_WIDTH(UART_WIDTH)) 
+            ImemInterface(.clk(clk), .rstN(rstN), .txStart(1'b1), .mem_transmitted(), 
             .mem_received(uart_InsMem_received),
             ///input outputs with memory
             .dataFromMem(), .memWrEn(uart_InsMemWrEn), .mem_address(uart_InsMemAddr), 
-            .dataToMem(uartInsOut), 
+            .dataToMem(InsMemIn), 
             ///inputs outputs with uart system
             .txByteReady(txReady), .rxByteReady(rxReady), .new_rx_byte_indicate(new_ins_byte_indicate), 
             .ByteFromUart(byteFromRx), .uartTxStart(), .byteToUart(),
@@ -181,7 +183,8 @@ uart_mem_interface #(.memWordLength(insMemWordLength), .memAddressLength(insMemA
             .tx_start_addr_in(), .tx_end_addr_in(), .rx_end_addr_in(),
             .toggle_addr_range(1'b0));
 
-uart_system US(.clk(clk), .rst(rst),.txByteStart(txByteStart), .rx(UART_RXD), 
+uart_system #(.DATA_WIDTH(UART_WIDTH), .BAUD_RATE(BAUD_RATE)) 
+            US(.clk(clk), .rstN(rstN),.txByteStart(txByteStart), .rx(UART_RXD), 
                 .byteForTx(byteForTx), .tx(UART_TXD), .txReady(txReady) ,.rxReady(rxReady), 
                 .new_byte_indicate(new_byte_indicate), .byteFromRx(byteFromRx));
 
@@ -189,26 +192,26 @@ localparam  Q_end_addr_location = 12'd7,
             R_start_addr_location = 12'd5,
             R_end_addr_location = 12'd8;
 
-reg [11:0]uartMemory[2:0]; //0- end address of Q, 1- start address of R, 2- end address of R
+reg [REG_WIDTH-1:0]uartMemory[2:0]; //0- end address of Q, 1- start address of R, 2- end address of R
 
 always @(posedge clk) begin
-    if (uart_dMemWrEn) begin
+    if (uart_dataMemWrEn) begin
         if (uart_dataMemAddr == Q_end_addr_location)
-            uartMemory[0] <= uartDataOut[11:0];
+            uartMemory[0] <= uart_DataOut[REG_WIDTH-1:0];
         else if (uart_dataMemAddr == R_start_addr_location)
-            uartMemory[1] <= uartDataOut[11:0];
+            uartMemory[1] <= uart_DataOut[REG_WIDTH-1:0];
         else if (uart_dataMemAddr == R_end_addr_location)
-            uartMemory[2] <= uartDataOut[11:0];
+            uartMemory[2] <= uart_DataOut[REG_WIDTH-1:0];
     end
 end
 
 //////////////to count the time taken to the process
 wire [25:0]currentTime;
-timeCounter TC(.clk(clk), .rst(rst), .start(processStart), .stop(processDone), 
+timeCounter TC(.clk(clk), .rstN(rstN), .start(processStart), .stop(processDone), 
                 .timeDuration(currentTime));
 
 /////////////////// to show current state & no. of clock cycles on the 8 seven segments 
-hex_display HD(.clk(clk), .rst(rst), .state(currentState), 
+hex_display HD(.clk(clk), .rstN(rstN), .state(currentState), 
             .start_timeValue_convetion(~uart_DataMem_transmitted), .timeValue(currentTime), 
             .out0(HEX0), .out1(HEX1), .out2(HEX2),.out3(HEX3),.out4(HEX4),
             .out5(HEX5), .out6(HEX6), .out7(HEX7));
@@ -218,8 +221,8 @@ hex_display HD(.clk(clk), .rst(rst), .state(currentState),
 // wire [47:0]a;
 // assign  a = mem_check[0];
 // assign LEDG = a[7:0];
-// dataMem #(.data_width(dataMemWordLength), .address_width(dataMemAddrLength))
-//                 DM(.address({dataMemAddrLength{1'b0}}), .clock(clk), .data(8'd4), .wren(1'b0), 
+// dataMem #(.data_width(DATA_MEM_WIDTH), .address_width(DATA_MEM_ADDR_WIDTH))
+//                 DM(.address({DATA_MEM_ADDR_WIDTH{1'b0}}), .clock(clk), .data(8'd4), .wren(1'b0), 
 //                 .q(a)); // size = (4096 x 48)
 
 endmodule //toFpga

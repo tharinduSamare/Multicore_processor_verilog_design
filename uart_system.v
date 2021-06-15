@@ -1,20 +1,24 @@
 module uart_system 
+#(
+    parameter DATA_WIDTH = 8,
+    parameter BAUD_RATE = 19200
+)
 (
-    input clk, rst,txByteStart,rx,
-    input [7:0]byteForTx,
+    input clk, rstN,txByteStart,rx,
+    input [DATA_WIDTH-1:0]byteForTx,
     output tx,txReady,rxReady,new_byte_indicate,
-    output [7:0]byteFromRx
+    output [DATA_WIDTH-1:0]byteFromRx
 );
 
-wire boudTick;
+wire baudTick;
 
-uart_transmitter Tx(.dataIn(byteForTx), .clk(clk), .boudTick(boudTick), .rst(rst), .txStart(txByteStart), .tx(tx),
+uart_transmitter #(.DATA_WIDTH(DATA_WIDTH)) Tx(.dataIn(byteForTx), .clk(clk), .baudTick(baudTick), .rstN(rstN), .txStart(txByteStart), .tx(tx),
              .TxReady(txReady));
 
-uart_receiver RX(.rx(rx), .clk(clk), .rst(rst), .boudTick(boudTick), .dataOut(byteFromRx), .ready(rxReady),
+uart_receiver #(.DATA_WIDTH(DATA_WIDTH)) RX(.rx(rx), .clk(clk), .rstN(rstN), .baudTick(baudTick), .dataOut(byteFromRx), .ready(rxReady),
             .new_byte_indicate(new_byte_indicate));
 
-uart_boudRateGen BRG(.clk(clk), .rst(rst), .boudTick(boudTick));
+uart_boudRateGen #(.BAUD_RATE(BAUD_RATE)) BRG(.clk(clk), .rstN(rstN), .baudTick(baudTick));
 
 
 endmodule //uart_system

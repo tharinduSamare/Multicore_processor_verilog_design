@@ -1,7 +1,7 @@
 module insMem 
 #(
     parameter DATA_WIDTH = 12,
-    parameter DEPTH = 4096,
+    parameter DEPTH = 256,
     parameter ADDR_WIDTH = $clog2(DEPTH)  // 4096 locations
 )
 

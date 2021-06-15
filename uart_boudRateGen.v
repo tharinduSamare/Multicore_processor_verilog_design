@@ -1,20 +1,29 @@
-module uart_boudRateGen (
-    input clk,rst,
-    output boudTick
+module uart_boudRateGen
+#(
+    parameter BAUD_RATE = 19200
+)
+(
+    input clk,rstN,
+    output baudTick
 );
 
-reg [7:0]count;
+localparam CLK_RATE = 50*(10**6);
+localparam RESOLUTION = 16;  // samples per 1 baud
+localparam MAX_COUNT = (CLK_RATE/BAUD_RATE/RESOLUTION); //round to smaller integer
+localparam WIDTH = $clog2(MAX_COUNT);
 
-always @(posedge clk or negedge rst) begin
-    if (~rst)
-        count <= 8'b0;
-    else if (count < 162)
-        count <= count+8'b1;
+reg [WIDTH-1:0]count;
+
+always @(posedge clk) begin
+    if (~rstN)
+        count <= 1'b0;
+    else if (count < MAX_COUNT)
+        count <= count + 1'b1;
     else
-        count <= 8'b0;
+        count <= 1'b0;
 end
 
-assign  boudTick = (count==8'd162)? 1'b1:1'b0;
+assign  baudTick = (count==MAX_COUNT)? 1'b1:1'b0;
 
 
 endmodule //uart_boudRateGen

@@ -1,5 +1,5 @@
 module timeCounter (
-    input clk, rst, start, stop,
+    input clk, rstN, start, stop,
     output [25:0]timeDuration
 );
 localparam  idle = 2'b0,
@@ -9,8 +9,8 @@ localparam  idle = 2'b0,
 reg [25:0]currentTime, nextTime;
 reg [1:0]currentState, nextState;
 
-always @(posedge clk or negedge rst) begin
-    if (~rst) begin
+always @(posedge clk or negedge rstN) begin
+    if (~rstN) begin
         currentTime <= 26'b0;
         currentState <= idle;
     end

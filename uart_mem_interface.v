@@ -1,35 +1,36 @@
 module uart_mem_interface 
 #(
-    parameter memWordLength = 12,
-    parameter memAddressLength = 12
+    parameter MEM_WORD_LENGTH = 12,
+    parameter MEM_ADDR_LENGTH = 12,
+    parameter UART_WIDTH = 8
 )
- (
+(
      //////////////input output with main program
-    input clk,rst,txStart,
+    input clk,rstN,txStart,
     output mem_transmitted, mem_received,
 
     //select start end mem addresses of tx and rx 
-    input [memAddressLength-1:0]tx_start_addr_in,tx_end_addr_in,rx_end_addr_in,
+    input [MEM_ADDR_LENGTH-1:0]tx_start_addr_in,tx_end_addr_in,rx_end_addr_in,
     input toggle_addr_range,   // 0 - go untill the last address of the memory, 1 - consider inputted start, end addresses
 
     /////////////////inputs outputs with memory
-    input [memWordLength-1:0]dataFromMem,
+    input [MEM_WORD_LENGTH-1:0]dataFromMem,
     output memWrEn,
-    output [memAddressLength-1:0]mem_address,
-    output [memWordLength-1:0]dataToMem,
+    output [MEM_ADDR_LENGTH-1:0]mem_address,
+    output [MEM_WORD_LENGTH-1:0]dataToMem,
     
     ////////////////////inputs outputs with uart system
 
     input txByteReady,rxByteReady,new_rx_byte_indicate,
-    input [7:0]ByteFromUart,
+    input [UART_WIDTH-1:0]ByteFromUart,
     output uartTxStart, 
-    output [7:0]byteToUart  
+    output [UART_WIDTH-1:0]byteToUart  
 );
 
 wire startTranmit,txReady,rxDone;
 wire new_rx_data_indicate;
 
-wire [memAddressLength-1:0]tx_start_addr, tx_end_addr, rx_end_addr;
+wire [MEM_ADDR_LENGTH-1:0]tx_start_addr, tx_end_addr, rx_end_addr;
 
 localparam [2:0]
                 idle = 3'b0,
@@ -42,15 +43,15 @@ localparam [2:0]
                 receive_2 = 3'd7;
 
 
-reg [memAddressLength-1:0]currentAddress, nextAddress;
+reg [MEM_ADDR_LENGTH-1:0]currentAddress, nextAddress;
 reg [2:0]currentState, nextState;
 reg currentStartTransmit, nextStartTranmit;
 
 
-always @(posedge clk or negedge rst) begin
-    if (~rst) begin
+always @(posedge clk or negedge rstN) begin
+    if (~rstN) begin
         currentState <= idle;
-        currentAddress <= {memAddressLength{1'b0}};
+        currentAddress <= {MEM_ADDR_LENGTH{1'b0}};
         currentStartTransmit <= 1'b1; //starts if value is zero
     end
     else begin
@@ -67,7 +68,7 @@ always @(*) begin
 
     case (currentState)
         idle: begin
-            nextAddress = {memAddressLength{1'b0}};
+            nextAddress = {MEM_ADDR_LENGTH{1'b0}};
             nextStartTranmit = 1'b1;    //to transmit this should be zero
             if (new_rx_data_indicate)
                 nextState = receive_0;
@@ -98,7 +99,7 @@ always @(*) begin
                     nextState = idle;                    
                 end
                 else begin
-                    nextAddress = currentAddress + {{memAddressLength-1{1'b0}} , 1'b1};
+                    nextAddress = currentAddress + {{MEM_ADDR_LENGTH-1{1'b0}} , 1'b1};
                     nextState = transmit_0;
                 end
             end
@@ -119,7 +120,7 @@ always @(*) begin
                 nextState = idle; 
             end
             else begin
-                nextAddress = currentAddress + {{memAddressLength-1{1'b0}} , 1'b1};
+                nextAddress = currentAddress + {{MEM_ADDR_LENGTH-1{1'b0}} , 1'b1};
                 nextState = receive_0;   
             end                           
         end
@@ -134,11 +135,11 @@ assign mem_transmitted = ((currentState == transmit_3) && (txReady == 1'b1) && (
 assign mem_address = currentAddress;
 
 
-// encoder_decoder #(.data_width(memWordLength)) US(.dataIn(uartDataIn), .clk(clk), .rst(rst),.txStart(startTranmit), .rx(rx), .tx(tx), 
+// encoder_decoder #(.data_width(MEM_WORD_LENGTH)) US(.dataIn(uartDataIn), .clk(clk), .rstN(rstN),.txStart(startTranmit), .rx(rx), .tx(tx), 
 //                 .txReady(txReady), .rxDone(rxDone), .dataOut(uartDataOut), .uart_state(uart_state), .tx_state(tx_state),
 //                 .new_rx_data_indicate(new_rx_data_indicate));
 
-uart_encoder_decoder #(.data_width(memWordLength)) ED(.dataFromMem(dataFromMem), .clk(clk), .rst(rst), .txStart(startTranmit),
+uart_encoder_decoder #(.DATA_WIDTH(MEM_WORD_LENGTH), .UART_WIDTH(UART_WIDTH)) ED(.dataFromMem(dataFromMem), .clk(clk), .rstN(rstN), .txStart(startTranmit),
                     .txReady(txReady), .rxDone(rxDone), .dataToMem(dataToMem), .new_rx_data_indicate(new_rx_data_indicate),
                     .txByteReady(txByteReady), .txByteStart(uartTxStart), .byteForTx(byteToUart), .byteFromRx(ByteFromUart),
                     .rxByteReady(rxByteReady), .new_rx_byte_indicate(new_rx_byte_indicate));
@@ -146,11 +147,11 @@ uart_encoder_decoder #(.data_width(memWordLength)) ED(.dataFromMem(dataFromMem),
 // memory mem(.address(address), .clock(clk), .data(uartDataOut), .wren(memWrEn), .q(uartDataIn));
 //mem_2 mem(.address(address), .clock(clk), .data(uartDataOut), .wren(memWrEn), .q(uartDataIn));
 
-assign tx_start_addr = (toggle_addr_range == 1'b0)? {memAddressLength{1'b0}}: tx_start_addr_in;
-assign tx_end_addr = (toggle_addr_range == 1'b0)? {memAddressLength{1'b1}}: tx_end_addr_in;
+assign tx_start_addr = (toggle_addr_range == 1'b0)? {MEM_ADDR_LENGTH{1'b0}}: tx_start_addr_in;
+assign tx_end_addr = (toggle_addr_range == 1'b0)? {MEM_ADDR_LENGTH{1'b1}}: tx_end_addr_in;
 
-assign rx_end_addr = (toggle_addr_range == 1'b0)? {memAddressLength{1'b1}}:
-                        (rx_end_addr_in == 0)? {{memAddressLength-4{1'b0}}, {4{1'b1}}}: //give 31 as the end rx address if input addr is small
+assign rx_end_addr = (toggle_addr_range == 1'b0)? {MEM_ADDR_LENGTH{1'b1}}:
+                        (rx_end_addr_in == 0)? {{MEM_ADDR_LENGTH-4{1'b0}}, {4{1'b1}}}: //give 31 as the end rx address if input addr is small
                         rx_end_addr_in;
 
 endmodule //uart_mem_interface

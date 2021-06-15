@@ -1,7 +1,11 @@
-module uart_receiver (
-    input rx, clk, rst, boudTick,
+module uart_receiver 
+#(
+    parameter DATA_WIDTH = 8
+)
+(
+    input rx, clk, rstN, baudTick,
     output ready, 
-    output [7:0]dataOut,
+    output [DATA_WIDTH-1:0]dataOut,
     output new_byte_indicate
 );
 
@@ -14,14 +18,14 @@ localparam [1:0]
 reg [1:0]currentState, nextState;
 reg [2:0]currentCount,nextCount;
 reg [3:0]currentTick, nextTick;
-reg [7:0]currentData, nextData;
+reg [DATA_WIDTH-1:0]currentData, nextData;
 
-always @(posedge clk or negedge rst) begin
-    if(~rst) begin
+always @(posedge clk or negedge rstN) begin
+    if(~rstN) begin
         currentState <= idle;
         currentCount <= 3'b0;
         currentTick <= 4'b0;
-        currentData <= 8'b0;
+        currentData <= 0;
     end
     else begin
         currentState <= nextState;
@@ -47,7 +51,7 @@ always @(*) begin
         end
 
         start: begin
-           if (boudTick) begin
+           if (baudTick) begin
                nextTick = currentTick + 4'b1;
                if (currentTick == 4'd7) begin
                    if (~rx) begin
@@ -66,7 +70,7 @@ always @(*) begin
         end
 
         data: begin
-            if (boudTick) begin
+            if (baudTick) begin
                 nextTick = currentTick + 4'b1;
                 if (currentTick == 4'd15) begin
                     nextData[currentCount] = rx;
@@ -80,7 +84,7 @@ always @(*) begin
         end
 
         stop: begin
-            if (boudTick) begin
+            if (baudTick) begin
                 nextTick = currentTick + 4'b1;
                 if (currentTick == 4'd15) begin
                     nextState = idle;
@@ -93,6 +97,6 @@ end
 
 assign dataOut = currentData;
 assign ready = (currentState == idle)? 1'b1: 1'b0;
-assign new_byte_indicate = ((currentState == start) && (boudTick) && (currentTick == 4'd7) && (~rx))? 1'b1:1'b0; //start of new data byte
+assign new_byte_indicate = ((currentState == start) && (baudTick) && (currentTick == 4'd7) && (~rx))? 1'b1:1'b0; //start of new data byte
 
 endmodule //uart_receiver
