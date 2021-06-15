@@ -1,10 +1,10 @@
 module controlUnit 
 #(
-    parameter IR_WIDTH = 8
+    parameter INS_WIDTH = 8
 )
 (
     input clk,rstN,start,Zout,
-    input [7:0]ins,
+    input [INS_WIDTH-1:0]ins,
     output reg [2:0]aluOp,
     output reg [3:0]incReg,    // {PC, RC, RP, RQ}
     output reg [9:0]wrEnReg,   // {AR, R, PC, IR, RL, RC, RP, RQ, R1, AC}

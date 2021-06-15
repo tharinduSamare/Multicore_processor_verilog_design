@@ -1,7 +1,7 @@
 module zReg 
 #(parameter WIDTH = 12)
 (
-    input [11:0]dataIn,
+    input [WIDTH-1:0]dataIn,
     input clk,rstN,wrEn,
     output Zout
 );
