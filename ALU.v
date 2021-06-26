@@ -1,9 +1,9 @@
 module ALU 
 #(parameter WIDTH = 12)
 (
-    input [WIDTH-1:0]a,b,  // a - from Accumulator, b - from data-bus
+    input signed [WIDTH-1:0]a,b,  // a - from Accumulator, b - from data-bus
     input [2:0]selectOp, 
-    output [WIDTH-1:0]dataOut
+    output signed [WIDTH-1:0]dataOut
 );
 
 localparam  clr  =  3'd0,  // ALU operations and their control signals
@@ -21,6 +21,6 @@ assign dataOut =    (selectOp == clr)? {WIDTH{1'b0}}:
                     (selectOp == sub)? a-b:
                     (selectOp == mul)? a*b:
                     (selectOp == inc)? a+1'b1:
-                    {WIDTH{1'bx}};  // default value is undefined
+                    {WIDTH{1'b0}};  // default value is undefined
 
 endmodule //ALU
