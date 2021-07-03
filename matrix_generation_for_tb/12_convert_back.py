@@ -65,7 +65,7 @@ for x in (matrix_R):
         writeFile.write(y + (6-len(y))*" ")
     writeFile.write('\n')
 writeFile.close()
-print(matrix_R)
+
                 
 
 

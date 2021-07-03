@@ -11,7 +11,7 @@ initial begin
     end
 end
 
-localparam CORE_COUNT = 4;
+localparam CORE_COUNT = 3;
 localparam REG_WIDTH = 12;
 localparam INS_WIDTH = 8;
 localparam INS_MEM_DEPTH = 256;
@@ -79,7 +79,7 @@ localparam  Q_end_addr_location = DATA_MEM_ADDR_WIDTH'(12'd7),
             R_end_addr_location = DATA_MEM_ADDR_WIDTH'(12'd8);
 reg [REG_WIDTH-1:0] a, b, c, P_start_addr, Q_start_addr, R_start_addr, P_end_addr, Q_end_addr, R_end_addr;
 
-reg temp_test;
+reg disp_temp;
 always @(posedge clk) begin
     if (done) begin
         a = data_mem[12'd0][REG_WIDTH-1:0];  
@@ -95,13 +95,13 @@ always @(posedge clk) begin
         $writememb("../../11_data_mem_out.txt", data_mem, R_start_addr, R_end_addr); // write answer matrix to a file
 
         $display("\nMatrix P\n");
-        temp_test = print_matrix_P(a, b, P_start_addr, P_end_addr, CORE_COUNT);
+        disp_temp = print_matrix_P(a, b, P_start_addr, P_end_addr, CORE_COUNT);
 
         $display("\nMatrix Q\n");
-        temp_test = print_matrix_Q(b, c, Q_start_addr, Q_end_addr);
+        disp_temp = print_matrix_Q(b, c, Q_start_addr, Q_end_addr);
 
         $display("\nMatrix R\n");
-        temp_test = print_matrix_R(a, c, R_start_addr, R_end_addr, CORE_COUNT);
+        disp_temp = print_matrix_R(a, c, R_start_addr, R_end_addr, CORE_COUNT);
 
         repeat(5) @(posedge clk);  // end of the simulation
         $stop;
