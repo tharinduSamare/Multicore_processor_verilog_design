@@ -22,7 +22,7 @@ localparam DATA_MEM_WIDTH = REG_WIDTH*CORE_COUNT;
 
 reg rstN,start;
 reg [REG_WIDTH*CORE_COUNT-1:0]ProcessorDataIn;
-wire [INS_WIDTH-1:0]InsMemOut;
+reg [INS_WIDTH-1:0]InsMemOut;
 wire [REG_WIDTH*CORE_COUNT-1:0]ProcessorDataOut;
 wire [INS_MEM_ADDR_WIDTH-1:0]insMemAddr;
 wire [DATA_MEM_ADDR_WIDTH-1:0]dataMemAddr;
@@ -62,9 +62,11 @@ end
 initial begin
     @(posedge clk);
     rstN <= 1'b0;
-    start <= 1'b0;
+    start <= 1'b1;
     @(posedge clk);
     rstN <= 1'b1;
+    start <= 1'b0;
+    @(posedge clk);
     start <= 1'b1;
 end
 
@@ -75,30 +77,31 @@ end
 localparam  Q_end_addr_location = DATA_MEM_ADDR_WIDTH'(12'd7),
             R_start_addr_location = DATA_MEM_ADDR_WIDTH'(12'd5),
             R_end_addr_location = DATA_MEM_ADDR_WIDTH'(12'd8);
-wire [REG_WIDTH-1:0] a, b, c, P_start_addr, Q_start_addr, R_start_addr, P_end_addr, Q_end_addr, R_end_addr;
+reg [REG_WIDTH-1:0] a, b, c, P_start_addr, Q_start_addr, R_start_addr, P_end_addr, Q_end_addr, R_end_addr;
 
+reg temp_test;
 always @(posedge clk) begin
     if (done) begin
-        a = (data_mem[12'd0])[REG_WIDTH-1:0];  
-        b = (data_mem)[12'd1][REG_WIDTH-1:0];
-        c = (data_mem)[12'd2][REG_WIDTH-1:0];
-        P_start_addr = (data_mem[12'd3])[REG_WIDTH-1:0];
-        Q_start_addr = (data_mem[12'd4])[REG_WIDTH-1:0];
-        R_start_addr = (data_mem[12'd5])[REG_WIDTH-1:0];
-        P_end_addr = (data_mem[12'd6])[REG_WIDTH-1:0];
-        Q_end_addr = (data_mem[12'd7])[REG_WIDTH-1:0];
-        R_end_addr = (data_mem[12'd8])[REG_WIDTH-1:0];
+        a = data_mem[12'd0][REG_WIDTH-1:0];  
+        b = data_mem[12'd1][REG_WIDTH-1:0];
+        c = data_mem[12'd2][REG_WIDTH-1:0];
+        P_start_addr = data_mem[12'd3][REG_WIDTH-1:0];
+        Q_start_addr = data_mem[12'd4][REG_WIDTH-1:0];
+        R_start_addr = data_mem[12'd5][REG_WIDTH-1:0];
+        P_end_addr = data_mem[12'd6][REG_WIDTH-1:0];
+        Q_end_addr = data_mem[12'd7][REG_WIDTH-1:0];
+        R_end_addr = data_mem[12'd8][REG_WIDTH-1:0];
 
-        $writememh("../../7_multiply_answer.txt", data_mem, R_start_addr, R_end_addr); // write answer matrix to a file
+        $writememb("../../11_data_mem_out.txt", data_mem, R_start_addr, R_end_addr); // write answer matrix to a file
 
         $display("\nMatrix P\n");
-        print_matrix_P(data_mem, a, b, P_start_addr, P_end_addr, CORE_COUNT);
+        temp_test = print_matrix_P(a, b, P_start_addr, P_end_addr, CORE_COUNT);
 
         $display("\nMatrix Q\n");
-        print_matrix_Q(data_mem, b, c, Q_start_addr, Q_end_addr);
+        temp_test = print_matrix_Q(b, c, Q_start_addr, Q_end_addr);
 
         $display("\nMatrix R\n");
-        print_matrix_R(data_mem, a, c, R_start_addr, R_end_addr, CORE_COUNT);
+        temp_test = print_matrix_R(a, c, R_start_addr, R_end_addr, CORE_COUNT);
 
         repeat(5) @(posedge clk);  // end of the simulation
         $stop;
@@ -106,16 +109,16 @@ always @(posedge clk) begin
 end
 
 
-function automatic void print_matrix_P(input reg [DATA_MEM_WIDTH-1:0]DMEM[0:DATA_MEM_DEPTH-1], input wire [REG_WIDTH-1:0]a,b,P_start_addr,P_end_addr, integer CORE_COUNT);
+function automatic print_matrix_P (input [REG_WIDTH-1:0]a,b,P_start_addr,P_end_addr, input integer CORE_COUNT);
     integer d = (a%CORE_COUNT == 0)? a/CORE_COUNT : a/CORE_COUNT+1;
-    integer x,y;
-    for (x=0;x<d;x++) begin
-        for (y=CORE_COUNT;y>0;y--) begin
+    integer x,y,z;
+    for (x=0;x<d;x=x+1)  begin
+        for (y=CORE_COUNT;y>0;y=y-1) begin :core_count_loop
             if ((x+1)*CORE_COUNT-y>= a) begin
-                break;
+                disable core_count_loop;
             end 
-            for (int z=0;z<b;z++) begin
-                reg [DATA_MEM_WIDTH-1:0]temp_1 = DMEM[(P_start_addr + x*b+z)];
+            for (z=0;z<b;z=z+1) begin : print_val_P
+                reg [DATA_MEM_WIDTH-1:0]temp_1 = data_mem[(P_start_addr + x*b+z)];
                 reg [REG_WIDTH-1:0]temp_2 = temp_1[(y*REG_WIDTH-1) -:REG_WIDTH];
                 $write("%h ", temp_2);                
             end
@@ -124,27 +127,28 @@ function automatic void print_matrix_P(input reg [DATA_MEM_WIDTH-1:0]DMEM[0:DATA
     end
 endfunction
 
-function automatic void print_matrix_Q(input reg [DATA_MEM_WIDTH-1:0]DMEM[0:DATA_MEM_DEPTH-1], input wire [REG_WIDTH-1:0]b,c,Q_start_addr,Q_end_addr);
+function automatic print_matrix_Q(input [REG_WIDTH-1:0]b,c,Q_start_addr,Q_end_addr);
     integer i,j;
-    for (i=Q_start_addr;i<Q_start_addr+b;i++) begin
-        for (j=i;j<=Q_end_addr;j=j+b) begin
-            reg [DATA_MEM_WIDTH-1:0] temp_1 = DMEM[j];
+    for (i=Q_start_addr;i<Q_start_addr+b;i=i+1) begin 
+        for (j=i;j<=Q_end_addr;j=j+b) begin :print_val_Q
+            reg [DATA_MEM_WIDTH-1:0] temp_1 = data_mem[j];
             $write("%h ", temp_1[REG_WIDTH-1:0]);
         end
         $write("\n");
     end
 endfunction
 
-function automatic void print_matrix_R(input reg [DATA_MEM_WIDTH-1:0]DMEM[0:DATA_MEM_DEPTH-1], input wire [REG_WIDTH-1:0]a,c,R_start_addr,R_end_addr, int CORE_COUNT);
+function automatic print_matrix_R(input [REG_WIDTH-1:0]a,c,R_start_addr,R_end_addr, input integer CORE_COUNT);
     integer d = (a%CORE_COUNT == 0)? a/CORE_COUNT : a/CORE_COUNT+1;
 
-    for (integer x=0;x<d;x++) begin
-        for (int y=CORE_COUNT;y>0;y--) begin
+    integer x,y,z;
+    for (x=0;x<d;x=x+1) begin
+        for (y=CORE_COUNT;y>0;y=y-1) begin : core_count_loop
             if ((x+1)*CORE_COUNT-y>= a) begin
-                break;
+                disable core_count_loop;
             end 
-            for (integer z=0;z<c;z++) begin
-                reg [DATA_MEM_WIDTH-1:0]temp_1 = DMEM[(R_start_addr + x*c+z)];
+            for (z=0;z<c;z=z+1) begin : print_val_R
+                reg [DATA_MEM_WIDTH-1:0]temp_1 = data_mem[(R_start_addr + x*c+z)];
                 reg [REG_WIDTH-1:0]temp_2 = temp_1[(y*REG_WIDTH-1) -:REG_WIDTH];
                 $write("%h ", temp_2);                
             end

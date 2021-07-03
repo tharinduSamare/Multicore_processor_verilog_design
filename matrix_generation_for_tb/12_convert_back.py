@@ -46,10 +46,11 @@ start_R = raw_data_size + size_P + size_Q + 1  # extra 1 word space is given
 end_R = start_R + size_R-1                     #in assembly code before answer matrix
 
 data = open('11_data_mem_out.txt', 'r')
-data_in = data.read().strip().split('\n')[3:-1]   #first 3 lines contains unnecessary data
+data_in = data.read().strip().split('\n')[3:]   #first 3 lines contains unnecessary data
 data.close()  
 
-matrix_initial = data_in[start_R:end_R+1]
+matrix_initial = data_in[:]
+
 matrix_second = []
 
 for x in matrix_initial:

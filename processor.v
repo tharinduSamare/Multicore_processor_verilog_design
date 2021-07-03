@@ -1,9 +1,9 @@
 module processor 
 #(
-    REG_WIDTH = 12,
-    INS_WIDTH = 8,
-    DATA_MEM_ADDR_WIDTH = 12,
-    INS_MEM_ADDR_WIDTH = 8
+    parameter REG_WIDTH = 12,
+    parameter INS_WIDTH = 8,
+    parameter DATA_MEM_ADDR_WIDTH = 12,
+    parameter INS_MEM_ADDR_WIDTH = 8
 )
 (
     input clk,rstN,start,

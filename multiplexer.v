@@ -1,7 +1,7 @@
 module multiplexer 
 #(
-    REG_WIDTH = 12,
-    INS_WIDTH = 8
+    parameter REG_WIDTH = 12,
+    parameter INS_WIDTH = 8
 )
 (
     input [3:0]selectIn,  
