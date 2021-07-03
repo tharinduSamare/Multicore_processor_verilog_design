@@ -124,7 +124,7 @@ function automatic void print_matrix_P(input reg [DATA_MEM_WIDTH-1:0]DMEM[0:DATA
     end
 endfunction
 
-function automatic void print_matrix_Q(input reg [DATA_MEM_WIDTH-1:0]DMEM[0:DATA_MEM_DEPTH-1], reg [REG_WIDTH-1:0]b,c,Q_start_addr,Q_end_addr);
+function automatic void print_matrix_Q(input reg [DATA_MEM_WIDTH-1:0]DMEM[0:DATA_MEM_DEPTH-1], input wire [REG_WIDTH-1:0]b,c,Q_start_addr,Q_end_addr);
     integer i,j;
     for (i=Q_start_addr;i<Q_start_addr+b;i++) begin
         for (j=i;j<=Q_end_addr;j=j+b) begin
@@ -135,17 +135,17 @@ function automatic void print_matrix_Q(input reg [DATA_MEM_WIDTH-1:0]DMEM[0:DATA
     end
 endfunction
 
-function automatic void print_matrix_R(input logic [DATA_MEM_WIDTH-1:0]DMEM[0:DATA_MEM_DEPTH-1], logic [REG_WIDTH-1:0]a,c,R_start_addr,R_end_addr, int CORE_COUNT);
-    int d = (a%CORE_COUNT == 0)? a/CORE_COUNT : a/CORE_COUNT+1;
+function automatic void print_matrix_R(input reg [DATA_MEM_WIDTH-1:0]DMEM[0:DATA_MEM_DEPTH-1], input wire [REG_WIDTH-1:0]a,c,R_start_addr,R_end_addr, int CORE_COUNT);
+    integer d = (a%CORE_COUNT == 0)? a/CORE_COUNT : a/CORE_COUNT+1;
 
-    for (int x=0;x<d;x++) begin
+    for (integer x=0;x<d;x++) begin
         for (int y=CORE_COUNT;y>0;y--) begin
             if ((x+1)*CORE_COUNT-y>= a) begin
                 break;
             end 
-            for (int z=0;z<c;z++) begin
-                logic [DATA_MEM_WIDTH-1:0]temp_1 = DMEM[(R_start_addr + x*c+z)];
-                logic [REG_WIDTH-1:0]temp_2 = temp_1[(y*REG_WIDTH-1) -:REG_WIDTH];
+            for (integer z=0;z<c;z++) begin
+                reg [DATA_MEM_WIDTH-1:0]temp_1 = DMEM[(R_start_addr + x*c+z)];
+                reg [REG_WIDTH-1:0]temp_2 = temp_1[(y*REG_WIDTH-1) -:REG_WIDTH];
                 $write("%h ", temp_2);                
             end
             $write("\n");
