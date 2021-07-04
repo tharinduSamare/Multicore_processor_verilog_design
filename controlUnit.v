@@ -93,7 +93,7 @@ localparam  clr_alu  =  3'd0,   //alu operations
             sub_alu  =  3'd3,
             mul_alu  =  3'd4,
             inc_alu  =  3'd5,
-            idle_alu =  3'dx;
+            idle_alu =  3'd6;
 
 localparam  DMem_bus = 4'b0,   //multiplexer
             R_bus    = 4'd1,
