@@ -1,6 +1,6 @@
 module DATA_RAM
 #( 
-    parameter mem_init = no, 
+    parameter mem_init = 0, 
     parameter WIDTH = 12,
     parameter DEPTH = 4096,
     parameter ADDR_WIDTH = $clog2(DEPTH)
@@ -26,7 +26,7 @@ initial begin
     end
 end
 
-always (processDone) begin
+always @(processDone) begin
     if (processDone) begin
         $writememb("../../11_data_mem_out.txt", memory);
     end

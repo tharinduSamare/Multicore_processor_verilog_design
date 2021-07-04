@@ -1,6 +1,6 @@
-module INS_RAM import details::*;
+module INS_RAM
 #( 
-    parameter mem_init = no, 
+    parameter mem_init = 0, 
     parameter WIDTH = 8,
     parameter DEPTH = 256,
     parameter ADDR_WIDTH = $clog2(DEPTH)

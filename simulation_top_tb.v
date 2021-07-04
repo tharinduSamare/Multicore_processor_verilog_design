@@ -1,10 +1,10 @@
+`timescale 1ns/1ps
+
 module simulation_top_tb();
 
-timeunit 1ns;
-timeprecision 1ps;
-localparam CLK_PERIOD = 10;
+localparam CLK_PERIOD = 20;
 
-logic clk;
+reg clk;
 initial begin
     clk <= 0;
     forever begin
@@ -15,10 +15,11 @@ end
 
 localparam CORE_COUNT = 1;
 
-logic rstN, startN;
-logic processor_ready, processDone;
+reg rstN, startN;
+wire processor_ready, processDone;
 
-simulation_top #(.CORE_COUNT(CORE_COUNT)) simulation_top(.*);
+simulation_top #(.CORE_COUNT(CORE_COUNT)) simulation_top(.clk(clk), .rstN(rstN), .startN(startN),
+                .processor_ready(processor_ready), .processDone(processDone));
 
 initial begin
     @(posedge clk);

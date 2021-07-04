@@ -35,7 +35,7 @@ wire processStartN;
 
 ///////////////// state change logic
 
-localparam [2:0] {   //states
+localparam [2:0]   //states
     idle = 3'd0,
     process_exicute = 3'd4,
     finish = 3'd6;
@@ -52,7 +52,7 @@ always @(posedge clk) begin
     end
 end
 
-always (*) begin
+always @(*) begin
 
     nextState = currentState;
 
