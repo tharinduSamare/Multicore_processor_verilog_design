@@ -13,7 +13,7 @@ initial begin
     end
 end
 
-localparam CORE_COUNT = 1;
+localparam CORE_COUNT = 2;
 
 reg rstN, startN;
 wire processor_ready, processDone;

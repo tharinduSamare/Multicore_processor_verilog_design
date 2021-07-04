@@ -21,23 +21,28 @@ zReg #(.WIDTH(WIDTH)) dut(.dataIn(dataIn), .clk(clk), .rstN(rstN), .wrEn(wrEn), 
 
 initial begin
     @(posedge clk);
+    #(CLK_PERIOD*4/5);
     rstN <= 0;
 
     @(posedge clk);
+    #(CLK_PERIOD*4/5);
     rstN <= 1;
     dataIn <= 0;
     wrEn <= 0;
 
     @(posedge clk);
+    #(CLK_PERIOD*4/5);
     dataIn <= 0;
     wrEn <= 1;
 
     @(posedge clk);
+    #(CLK_PERIOD*4/5);
     dataIn <= 4;
     wrEn <= 1;
 
     repeat(10) begin
         @(posedge clk);
+        #(CLK_PERIOD*4/5);
         dataIn = $random();
         wrEn = $urandom();
         rstN = $urandom();
