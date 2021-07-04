@@ -98,7 +98,7 @@ multi_core_processor #(.REG_WIDTH(REG_WIDTH), .INS_WIDTH(INS_WIDTH), .CORE_COUNT
 
 
  INS_RAM #(.WIDTH(INS_WIDTH), .DEPTH(INS_MEM_DEPTH), .mem_init(1)) 
-        IM(.clk(clk), .wrEn(0), .dataIn(InsMemIn), .addr(insMemAddr), .dataOut(InsMemOut));
+        IM(.clk(clk), .wrEn(1'b0), .dataIn(InsMemIn), .addr(insMemAddr), .dataOut(InsMemOut));
 
  DATA_RAM #(.WIDTH(DATA_MEM_WIDTH), .DEPTH(DATA_MEM_DEPTH), .mem_init(1)) 
         DM(.clk(clk), .wrEn(dataMemWrEn), .dataIn(DataMemIn), .addr(dataMemAddr), .dataOut(DataMemOut), .processDone(processDone));

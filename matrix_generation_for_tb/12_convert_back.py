@@ -49,8 +49,7 @@ data = open('11_data_mem_out.txt', 'r')
 data_in = data.read().strip().split('\n')[3:]   #first 3 lines contains unnecessary data
 data.close()  
 
-matrix_initial = data_in[:]
-
+matrix_initial = data_in[start_R:end_R+1]
 matrix_second = []
 
 for x in matrix_initial:

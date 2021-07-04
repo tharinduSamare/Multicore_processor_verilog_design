@@ -18,7 +18,7 @@ localparam DATA_MEM_DEPTH = 4096;
 localparam DATA_MEM_ADDR_WIDTH = $clog2(DATA_MEM_DEPTH);
 localparam INS_MEM_ADDR_WIDTH = $clog2(INS_MEM_DEPTH);
 
-reg rstN,start;
+reg rstN,startN;
 reg [REG_WIDTH-1:0]ProcessorDataIn;
 reg [INS_WIDTH-1:0]InsMemOut;
 wire  [REG_WIDTH-1:0]dataMemAddr;
@@ -29,7 +29,7 @@ wire  done,ready;
 
 processor #(.REG_WIDTH(REG_WIDTH), .INS_WIDTH(INS_WIDTH), .INS_MEM_ADDR_WIDTH(INS_MEM_ADDR_WIDTH), 
             .DATA_MEM_ADDR_WIDTH(DATA_MEM_ADDR_WIDTH))dut(
-            .clk(clk), .rstN(rstN), .start(start), .ProcessorDataIn(ProcessorDataIn), .InsMemOut(InsMemOut),
+            .clk(clk), .rstN(rstN), .startN(startN), .ProcessorDataIn(ProcessorDataIn), .InsMemOut(InsMemOut),
             .ProcessorDataOut(ProcessorDataOut), .dataMemAddr(dataMemAddr), .insMemAddr(insMemAddr),
             .DataMemWrEn(DataMemWrEn), .done(done), .ready(ready));
 
@@ -61,12 +61,12 @@ end
 initial begin
     @(posedge clk);
     rstN <= 1'b0;
-    start <= 1'b1;
+    startN <= 1'b1;
     @(posedge clk);
     rstN <= 1'b1;
-    start <= 1'b0;
+    startN <= 1'b0;
     @(posedge clk);
-    start <= 1'b1;
+    startN <= 1'b1;
 end
 
 ////////////// verification of the simulation correctness /////////
@@ -89,7 +89,7 @@ always @(posedge clk) begin
         Q_end_addr = data_mem[12'd7][REG_WIDTH-1:0];
         R_end_addr = data_mem[12'd8][REG_WIDTH-1:0];
 
-        $writememb("../../11_data_mem_out.txt", data_mem, R_start_addr, R_end_addr); // write answer matrix to a file
+        $writememb("../../11_data_mem_out.txt", data_mem); // write data memory to a text file
 
         $display("\nMatrix P\n");
         disp_temp = print_matrix_P(a, b, P_start_addr, P_end_addr);
