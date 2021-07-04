@@ -39,7 +39,7 @@ wire [INS_MEM_ADDR_WIDTH-1:0]insMemAddr,uart_InsMemAddr, processor_InsMemAddr;
 wire dataMemWrEn,processor_DataMemWrEn, uart_dataMemWrEn;
 wire uart_InsMemWrEn;
 wire rstN, clk, startN;
-wire processStart, processDone, processor_ready;
+wire processStartN, processDone, processor_ready;
 
 wire txReady, rxReady;
 wire new_byte_indicate, new_ins_byte_indicate, new_data_byte_indicate;
@@ -111,7 +111,7 @@ end
 assign clk = CLOCK_50;
 assign rstN = KEY[0];
 assign startN = KEY[1];
-assign processStart = ((currentState == uart_receive_dmem) && (uart_DataMem_received))? 1'b0: 1'b1;
+assign processStartN = ((currentState == uart_receive_dmem) && (uart_DataMem_received))? 1'b0: 1'b1;
 assign uart_dmem_start_transmit = ((currentState == process_exicute) && (processDone))? 1'b0: 1'b1;
 
 assign dataMemWrEn = ((currentState == uart_receive_dmem) || (currentState == uart_transmit_dmem) )? uart_dataMemWrEn:
@@ -135,7 +135,7 @@ assign new_data_byte_indicate = (currentState == uart_receive_dmem)? new_byte_in
 
 
 multi_core_processor #(.REG_WIDTH(REG_WIDTH), .INS_WIDTH(INS_WIDTH), .CORE_COUNT(CORE_COUNT), .DATA_MEM_ADDR_WIDTH(DATA_MEM_ADDR_WIDTH), .INS_MEM_ADDR_WIDTH(INS_MEM_ADDR_WIDTH))
-                    multi_core_processor(.clk(clk),.rstN(rstN),.start(processStart), .ProcessorDataIn(DataMemOut), .InsMemOut(InsMemOut), 
+                    multi_core_processor(.clk(clk),.rstN(rstN),.startN(processStartN), .ProcessorDataIn(DataMemOut), .InsMemOut(InsMemOut), 
                     .ProcessorDataOut(processor_DataOut), .insMemAddr(processor_InsMemAddr), .dataMemAddr(processor_dataMemAddr),
                     .DataMemWrEn(processor_DataMemWrEn), .done(processDone), .ready(processor_ready));
 
@@ -207,7 +207,7 @@ end
 
 //////////////to count the time taken to the process
 wire [25:0]currentTime;
-timeCounter TC(.clk(clk), .rstN(rstN), .start(processStart), .stop(processDone), 
+timeCounter TC(.clk(clk), .rstN(rstN), .startN(processStartN), .stop(processDone), 
                 .timeDuration(currentTime));
 
 /////////////////// to show current state & no. of clock cycles on the 8 seven segments 

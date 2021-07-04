@@ -6,7 +6,7 @@ module processor
     parameter INS_MEM_ADDR_WIDTH = 8
 )
 (
-    input clk,rstN,start,
+    input clk,rstN,startN,
     input [REG_WIDTH-1:0]ProcessorDataIn,
     input [INS_WIDTH-1:0]InsMemOut,
     output [REG_WIDTH-1:0]ProcessorDataOut,
@@ -28,7 +28,7 @@ wire [9:0]wrEnReg;   // {AR, R, PC, IR, RL, RC, RP, RQ, R1, AC}
 
 //instantiation of each module within the processor are as follows.
 
-controlUnit #(.INS_WIDTH(INS_WIDTH)) CU(.clk(clk), .rstN(rstN), .start(start), .Zout(Zout), .ins(IRout), 
+controlUnit #(.INS_WIDTH(INS_WIDTH)) CU(.clk(clk), .rstN(rstN), .startN(startN), .Zout(Zout), .ins(IRout), 
                 .aluOp(select_alu_op), .incReg(incReg), .wrEnReg(wrEnReg), .busSel(busSel), 
                 .DataMemWrEn(DataMemWrEn), .ZWrEn(ZWrEn), .done(done), .ready(ready));
 

@@ -3,7 +3,7 @@ module controlUnit
     parameter INS_WIDTH = 8
 )
 (
-    input clk,rstN,start,Zout,
+    input clk,rstN,startN,Zout,
     input [INS_WIDTH-1:0]ins,
     output reg [2:0]aluOp,
     output reg [3:0]incReg,    // {PC, RC, RP, RQ}
@@ -164,7 +164,7 @@ always @(posedge clk) begin
 end
 
 //all the control signals for each state are set as below
-always @(start, Zout, ins, currentState) begin
+always @(startN, Zout, ins, currentState) begin
     case (currentState)    
         IDLE: begin
             aluOp <= idle_alu;
@@ -174,7 +174,7 @@ always @(start, Zout, ins, currentState) begin
             DataMemWrEn <= 1'b0;
             ZWrEn <= 1'b0;
 
-            if (~start)
+            if (~startN)
                 nextState <= FETCH1;
             else
                 nextState <= IDLE;

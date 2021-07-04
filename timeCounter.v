@@ -1,5 +1,5 @@
 module timeCounter (
-    input clk, rstN, start, stop,
+    input clk, rstN, startN, stop,
     output [25:0]timeDuration
 );
 localparam  idle = 2'b0,
@@ -27,7 +27,7 @@ always @( *) begin
     case (currentState)
         idle: begin
             nextTime = 26'b0;
-            if (~start) begin
+            if (~startN) begin
                 nextState = counting;
             end
         end

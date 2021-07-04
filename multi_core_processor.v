@@ -6,7 +6,7 @@ module multi_core_processor #(
     parameter INS_MEM_ADDR_WIDTH = 8
 )
 (
-    input clk,rstN,start,
+    input clk,rstN,startN,
     input [REG_WIDTH*CORE_COUNT-1:0]ProcessorDataIn,
     input [INS_WIDTH-1:0]InsMemOut,
     output [REG_WIDTH*CORE_COUNT-1:0]ProcessorDataOut,
@@ -25,7 +25,7 @@ genvar i;
 generate
     for (i=0;i<CORE_COUNT; i=i+1) begin:core
         processor #(.REG_WIDTH(REG_WIDTH), .INS_WIDTH(INS_WIDTH), .INS_MEM_ADDR_WIDTH(INS_MEM_ADDR_WIDTH), .DATA_MEM_ADDR_WIDTH(DATA_MEM_ADDR_WIDTH))
-             CPU(.clk(clk), .rstN(rstN), .start(start), .ProcessorDataIn(ProcessorDataIn[REG_WIDTH*i+:REG_WIDTH]), 
+             CPU(.clk(clk), .rstN(rstN), .startN(startN), .ProcessorDataIn(ProcessorDataIn[REG_WIDTH*i+:REG_WIDTH]), 
             .InsMemOut(InsMemOut), .dataMemAddr(core_dataMemAddr[i]), .ProcessorDataOut(ProcessorDataOut[REG_WIDTH*i+:REG_WIDTH]), 
             .insMemAddr(core_InsMemAddr[i]), .DataMemWrEn(core_DataMemWrEn[i]), .done(core_done[i]), .ready(core_ready[i]) ); 
     end
