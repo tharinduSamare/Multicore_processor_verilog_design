@@ -38,7 +38,7 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE115F29C7
-set_global_assignment -name TOP_LEVEL_ENTITY zReg
+set_global_assignment -name TOP_LEVEL_ENTITY RAM
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 18.1.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "12:20:41  AUGUST 30, 2020"
 set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
@@ -586,7 +586,7 @@ set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
-set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH zReg_tb -section_id eda_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH RAM_tb -section_id eda_simulation
 set_global_assignment -name EDA_TEST_BENCH_NAME ALU_tb -section_id eda_simulation
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id ALU_tb
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME ALU_tb -section_id ALU_tb
@@ -1168,6 +1168,9 @@ set_instance_assignment -name IO_STANDARD LVDS -to HSMC_TX_D_N[16]
 set_instance_assignment -name IO_STANDARD LVDS -to HSMC_RX_D_N[16]
 set_instance_assignment -name IO_STANDARD LVDS -to HSMC_CLKOUT_N2
 set_instance_assignment -name IO_STANDARD LVDS -to HSMC_CLKOUT_N1
+set_global_assignment -name EDA_TEST_BENCH_NAME RAM_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id RAM_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME RAM_tb -section_id RAM_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE ALU_tb.v -section_id ALU_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE register_tb.v -section_id register_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE incRegister_tb.v -section_id incRegister_tb
@@ -1200,4 +1203,5 @@ set_global_assignment -name EDA_TEST_BENCH_FILE processor.v -section_id simulati
 set_global_assignment -name EDA_TEST_BENCH_FILE simulation_top_tb.v -section_id simulation_top_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE zReg.v -section_id simulation_top_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE multiplexer_tb.v -section_id multiplexer_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE RAM_tb.v -section_id RAM_tb
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -12,16 +12,16 @@ initial begin
     end
 end
 
-localparam WIDTH = 12;
+localparam DATA_WIDTH = 12;
 localparam DEPTH = 8;
 localparam ADDR_WIDTH = $clog2(DEPTH);
 
 reg wrEn;
-reg [WIDTH-1:0] dataIn; 
-wire [WIDTH-1:] dataOut;
+reg [DATA_WIDTH-1:0] dataIn; 
+wire [DATA_WIDTH-1:0] dataOut;
 reg [ADDR_WIDTH-1:0] address;
 
-RAM #(.WIDTH(WIDTH), .DEPTH(DEPTH), .ADDR_WIDTH(ADDR_WIDTH)) dut(.clk(clk), .wrEn(wrEn), .dataIn(dataIn), .address(address)
+RAM #(.DATA_WIDTH(DATA_WIDTH), .DEPTH(DEPTH), .ADDR_WIDTH(ADDR_WIDTH)) dut(.clk(clk), .wrEn(wrEn), .dataIn(dataIn), .address(address),
                                                                 .dataOut(dataOut));
 
 initial begin
@@ -34,7 +34,7 @@ initial begin
     @(posedge clk);
     #(CLK_PERIOD*4/5);
     wrEn <= 1'b0;
-    address <= 20;
+    address <= 2;
     dataIn <=30;
 
     repeat (20) begin
@@ -49,37 +49,41 @@ initial begin
     $stop;
 end
 
-reg [WIDTH-1:0]test_memory[0:DEPTH-1];
+reg [DATA_WIDTH-1:0]test_memory[0:DEPTH-1];
+reg temp_val;
 
-typedef logic [WIDTH-1:0]test_memory_t[0:DEPTH-1];
-test_memory_t test_memory;
+function  test_memory_write (input wrEn, [ADDR_WIDTH-1:0] address, [DATA_WIDTH-1:0] dataIn); begin
+  
+    if (wrEn) begin
+        test_memory[address] = dataIn;
+    end
 
-function test_memory_t update (test_memory_t test_memory, logic wrEn, wire [ADDR_WIDTH-1:0] address, wire [WIDTH-1:0] dataIn, wire [WIDTH-1:0] dataOut);
-  
-  if (wrEn) begin
-      test_memory[address] = dataIn;
-  end
-  
-  return test_memory;
+    test_memory_write = 1'b0;
+
+end
   
 endfunction
 
-function void check (test_memory_t test_memory, wire [WIDTH-1:0] dataOut, wire [ADDR_WIDTH-1:0] address);
+function check (input [DATA_WIDTH-1:0] dataOut, [ADDR_WIDTH-1:0] address); begin
 
-    if (dataOut != test_memory[address]) begin
-        $display("dataOut = %p, memory_value = %p, address = %p", dataOut, test_memory[address], address);
-    end
+        if (dataOut != test_memory[address]) begin
+            $display("dataOut = %h, memory_value = %h, address = %h", dataOut, test_memory[address], address);
+        end
+
+        check = 1'b0;
+
+end
   
 endfunction
 
 initial begin
     forever begin
         @(posedge clk);
-        test_memory = update (test_memory, wrEn, address, dataIn, dataOut);
+        temp_val = test_memory_write (wrEn, address, dataIn);
 
         @(negedge clk);
         #(CLK_PERIOD*1/10);
-        check (test_memory, dataOut, address);
+        temp_val = check (dataOut, address);
     end
 end
 
