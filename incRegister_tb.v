@@ -2,7 +2,7 @@
 
 module incRegister_tb();
 
-localparam CLK_PERIOD = 10;
+localparam CLK_PERIOD = 20;
 reg clk;
 initial begin
     clk <= 0;
