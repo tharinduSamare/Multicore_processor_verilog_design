@@ -9,16 +9,19 @@ module RAM
     input clk,wrEn,
     input [DATA_WIDTH-1:0]dataIn,
     input [ADDR_WIDTH-1:0]address,
-    output reg [DATA_WIDTH-1:0]dataOut
+    output [DATA_WIDTH-1:0]dataOut
 );
 
 reg [DATA_WIDTH-1:0] memory [0:DEPTH-1];
+reg [ADDR_WIDTH-1:0] addr_reg;
 
 always @(posedge clk) begin
+    addr_reg <= address;
     if (wrEn) begin
         memory[address] <= dataIn;
     end
-    dataOut <= memory[address];
 end
+
+assign dataOut = memory[addr_reg];
 
 endmodule //RAM
