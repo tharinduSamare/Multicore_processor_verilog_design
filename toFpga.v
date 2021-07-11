@@ -7,7 +7,7 @@ module toFpga (
     output [6:0]HEX0,HEX1,HEX2, HEX3, HEX4,HEX5, HEX6, HEX7 
 );
 
-localparam CORE_COUNT = 2;
+localparam CORE_COUNT = 3;
 localparam REG_WIDTH = 12;
 localparam DATA_MEM_WIDTH = CORE_COUNT * REG_WIDTH;
 localparam INS_WIDTH = 8;
