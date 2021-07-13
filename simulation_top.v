@@ -1,6 +1,6 @@
 module simulation_top
 #(
-    parameter CORE_COUNT = 1
+    parameter CORE_COUNT = 8
 )
 (
     input wire clk, rstN, startN,
