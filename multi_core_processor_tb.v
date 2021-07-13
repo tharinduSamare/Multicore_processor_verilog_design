@@ -40,8 +40,8 @@ reg [INS_WIDTH-1:0]ins_mem[0:INS_MEM_DEPTH-1];
 reg [DATA_MEM_WIDTH-1:0]data_mem[0:DATA_MEM_DEPTH-1];
 
 initial begin
-    $readmemb("../../9_ins_mem_tb.txt", ins_mem);
-    $readmemb("../../4_data_mem_tb.txt", data_mem);
+    $readmemb("D:/ACA/SEM5_TRONIC_ACA/1_EN3030 _Circuits_and_Systems_Design/2020/learnFPGA/learn_processor_design/matrix_multiply/matrix_multiply_git/matrix_generation_for_tb/9_ins_mem_tb.txt", ins_mem);
+    $readmemb("D:/ACA/SEM5_TRONIC_ACA/1_EN3030 _Circuits_and_Systems_Design/2020/learnFPGA/learn_processor_design/matrix_multiply/matrix_multiply_git/matrix_generation_for_tb/4_data_mem_tb.txt", data_mem);
 end 
 ///////////// read data and instruction memory /////////
 always @(posedge clk) begin
@@ -92,7 +92,7 @@ always @(posedge clk) begin
         Q_end_addr = data_mem[12'd7][REG_WIDTH-1:0];
         R_end_addr = data_mem[12'd8][REG_WIDTH-1:0];
 
-        $writememb("../../11_data_mem_out.txt", data_mem); // write data memory to file
+        $writememb("D:/ACA/SEM5_TRONIC_ACA/1_EN3030 _Circuits_and_Systems_Design/2020/learnFPGA/learn_processor_design/matrix_multiply/matrix_multiply_git/matrix_generation_for_tb/11_data_mem_out.txt", data_mem); // write data memory to file
 
         $display("\nMatrix P\n");
         disp_temp = print_matrix_P(a, b, P_start_addr, P_end_addr, CORE_COUNT);
