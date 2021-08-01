@@ -1,0 +1,88 @@
+CLAC;
+LDIAC;
+1;//addresss of b
+MV_RL_AC;
+LDIAC;
+3;//start address of P
+MV_RP_AC;
+LDIAC;
+4;//start address of Q
+MV_RQ_AC;
+LDIAC;//set current P,Q,R
+3;//start address of P
+MV_R_AC;
+STIR;
+9;//current address of P
+LDIAC;
+4;//start address of Q
+MV_R_AC;
+STIR;
+10;//current address of Q
+LDIAC;
+5;//start address of R
+MV_R_AC;
+STIR;
+11;//current address of R
+CLAC;
+MV_R_AC;
+MV_RC_AC;
+MV_AC_RP;//loop starts
+LDAC;
+MV_R1_AC;
+MV_AC_RQ;
+LDAC;
+MUL;
+ADD;
+MV_R_AC;
+MV_AC_RL;
+SUB;
+JMPNZ;
+28;//loop again
+LDIAC;
+11;//current address of R
+STR;
+INCAC;
+MV_R_AC;
+STIR;
+11;//current addressof R
+MV_AC_RQ;
+MV_RC_AC;
+LDIAC;
+7;// end address of Q
+INCAC;//this is because current Q is increased by one
+SUB;
+JMPNZ;
+57;// b != end
+JUMP;
+62;//b == end
+LDIAC;//b!=end starts here
+9;// current address of P
+MV_RP_AC;
+JUMP;
+25;// jump to CLAC before loop begin
+MV_AC_RP;//b==end starts here
+MV_R_AC;//to store current P value
+STIR;
+9;// current address of P
+MV_RC_AC;//to subtract
+LDIAC;
+6;//end address P
+INCAC;
+SUB;
+JMPNZ;
+75;// jump to a != end
+JUMP;
+80;// jump to a == end
+LDIAC;//a!=end starts here
+4;//start address Q
+MV_RQ_AC;
+JUMP;
+25;// jump to CLAC before loop begin
+ENDOP;//a==end starts here
+
+
+
+
+
+
+
