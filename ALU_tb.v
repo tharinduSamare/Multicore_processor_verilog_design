@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 module ALU_tb();
 
-localparam CLK_PERIOD = 10;
+localparam CLK_PERIOD = 20;
 
 reg clk;
 initial begin

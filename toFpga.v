@@ -7,7 +7,7 @@ module toFpga (
     output [6:0]HEX0,HEX1,HEX2, HEX3, HEX4,HEX5, HEX6, HEX7 
 );
 
-localparam CORE_COUNT = 3;
+localparam CORE_COUNT = 1;
 localparam REG_WIDTH = 12;
 localparam DATA_MEM_WIDTH = CORE_COUNT * REG_WIDTH;
 localparam INS_WIDTH = 8;
@@ -38,7 +38,7 @@ wire [INS_MEM_ADDR_WIDTH-1:0]insMemAddr,uart_InsMemAddr, processor_InsMemAddr;
 ////// other logics ////////////
 wire dataMemWrEn,processor_DataMemWrEn, uart_dataMemWrEn;
 wire uart_InsMemWrEn;
-wire rstN, clk, start;
+wire rstN, clk, startN;
 wire processStartN, processDone, processor_ready;
 
 wire txReady, rxReady;
@@ -70,7 +70,7 @@ always @(*) begin
 
     case (currentState)
         idle: begin     // start state
-            if (~start) begin
+            if (~startN) begin
                 nextState = uart_receive_Imem;
             end
         end
@@ -110,7 +110,7 @@ end
 
 assign clk = CLOCK_50;
 assign rstN = KEY[0];
-assign start = KEY[1];
+assign startN = KEY[1];
 assign processStartN = ((currentState == uart_receive_dmem) && (uart_DataMem_received))? 1'b0: 1'b1;
 assign uart_dmem_start_transmit = ((currentState == process_exicute) && (processDone))? 1'b0: 1'b1;
 
