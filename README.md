@@ -45,5 +45,5 @@
 8. Run [14_compare_2_answers.py](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/matrix_generation_for_tb/14_compare_2_answers.py) to verify that the simulation is correct or not.
 
 ## Demonstration and documentation
-Demo of the multi-core processor can be found here. [Demonstration of the design](https://youtu.be/A8b6QhjnlR8)
-Documentation of the design - [Final report](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/FPGA%20based%20Multi-Core%20Processor_Final_Report.pdf)
+* Demo of the multi-core processor can be found here. [Demonstration of the design](https://youtu.be/A8b6QhjnlR8)
+* Documentation of the design - [Final report](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/FPGA%20based%20Multi-Core%20Processor_Final_Report.pdf)
