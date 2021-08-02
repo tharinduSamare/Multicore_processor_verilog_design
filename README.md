@@ -44,4 +44,6 @@
 7. Run [12_convert_back.py](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/matrix_generation_for_tb/12_convert_back.py) to create the answer matrix from the previous binary file.
 8. Run [14_compare_2_answers.py](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/matrix_generation_for_tb/14_compare_2_answers.py) to verify that the simulation is correct or not.
 
-[Demonstration of the design](https://youtu.be/A8b6QhjnlR8)
+## Demonstration and documentation
+Demo of the multi-core processor can be found here. [Demonstration of the design](https://youtu.be/A8b6QhjnlR8)
+Documentation of the design - [Final report]()
