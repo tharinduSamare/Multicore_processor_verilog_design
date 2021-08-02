@@ -11,8 +11,8 @@
 * ModelSim or QuestaSim can be used for simulations.
 
 ## Synthesis procedure
-1. Set the "CORE_COUNT" in the [toFpga.v](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/toFpga.v)
-2. If requires to change the UART communication baud rate,
+1. Set the "CORE_COUNT" in the [toFpga.v](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/toFpga.v) to set the number of cores in the multi-core proecessor.
+2. If requires to change the UART communication baud rate, set the "BAUD_RATE" in [to_Fpga.v](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/toFpga.v) and "baud_rate" in [processor_matrix_multiplication.py](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/python_code_for_synthesis/processor_matrix_multiplication.py). (Currently used value is 115200 for high speed transmission.
 3. Compile and upload to the DE2-115 board.
 4. Connect the RS-232 cable to the DE2-115. Make sure the "COM PORT" name is correct in [processor_matrix_multiplication_functions.py](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/python_code_for_synthesis/processor_matrix_multiplication_functions.py)
 5. Go to the "UART_INS" state by "KEY[1] push button. 
