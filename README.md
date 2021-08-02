@@ -12,7 +12,7 @@
 
 ## Synthesis procedure
 1. Set the "CORE_COUNT" in the [toFpga.v](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/toFpga.v) to set the number of cores in the multi-core proecessor.
-2. If requires to change the UART communication baud rate, set the "BAUD_RATE" in [to_Fpga.v](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/toFpga.v) and "baud_rate" in [processor_matrix_multiplication.py](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/python_code_for_synthesis/processor_matrix_multiplication.py). (Currently used value is 115200 for high speed transmission.
+2. If requires to change the UART communication baud rate, set the "BAUD_RATE" in [to_Fpga.v](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/toFpga.v) and "baud_rate" in [processor_matrix_multiplication.py](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/python_code_for_synthesis/processor_matrix_multiplication.py). (Currently used value is 115200 for high speed transmission).
 3. Compile and upload to the DE2-115 board.
 4. Connect the RS-232 cable to the DE2-115. Make sure the "COM PORT" name is correct in [processor_matrix_multiplication_functions.py](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/python_code_for_synthesis/processor_matrix_multiplication_functions.py)
 5. Go to the "UART_INS" state by "KEY[1] push button. 
@@ -30,7 +30,7 @@
 3. Go to Assignments -> Settings -> EDA Tool Settings -> Simulation
 4. Select the required test bench. (ex:- register_tb.v) and apply changes.
 5. Go to Tools -> Run Simulation -> RTL Simulation.
-6. Simulation will run and stop after the end of the simulation.
+6. Simulation will start in ModelSim or QuestaSim (as configured in Quartus Prime settings) then run untill the end and stop after at the end of the simulation.
 
 ### Note:-
 * For the top level simulation [simulation_top.v](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/simulation_top.v) and [simulation_top_tb.v](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/simulation_top_tb.v) are used. 
