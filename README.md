@@ -46,4 +46,5 @@
 
 ## Demonstration and documentation
 * Demo of the multi-core processor can be found here. [Demonstration of the design](https://youtu.be/A8b6QhjnlR8)
-* Documentation of the design - [Final report](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/FPGA%20based%20Multi-Core%20Processor_Final_Report.pdf)
+* Documentation of the design - [Final report](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/FPGA%20based%20Multi-Core%20Processor_Final_Report.pdf) (Please note that the codes in the report's appendix section are little bit old and instead of them use the codes in the github repository.)
+* The SystemVerilog implementation of the same design can be found [here](https://github.com/tharinduSamare/Multicore_processor_matrix_multiply_SystemVerilog_design)
