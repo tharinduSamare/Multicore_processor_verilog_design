@@ -16,7 +16,7 @@
 3. Compile and upload to the DE2-115 board.
 4. Connect the RS-232 cable to the DE2-115. Make sure the "COM PORT" name is correct in [processor_matrix_multiplication_functions.py](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/python_code_for_synthesis/processor_matrix_multiplication_functions.py)
 5. Go to the "UART_INS" state by "KEY[1] push button. 
-6. Run the [processor_matrix_multiplication.py]
+6. Run the [processor_matrix_multiplication.py](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/python_code_for_synthesis/processor_matrix_multiplication.py)
 7. Set the matrix dimensions and number of cores in the multi-core processor. 
 8. Wait few seconds for the data transmission and matrix multiplication.
 9. Clock counts for the multiplication is visible on the seven-segment display in decemal. 
