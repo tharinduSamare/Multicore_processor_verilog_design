@@ -22,6 +22,7 @@
 9. Clock counts for the multiplication is visible on the seven-segment display in decemal. 
 10. Answer is verified within the laptop using a python function. (If there is an error it will be shown in the terminal.)
 11. All the data are saved in text files in the [python_code_for_synthesis](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/tree/main/python_code_for_synthesis) folder.
+12. By pressing KEY[0] in the FPGA board, the system go to the initial (ready) state. (System reset)
 
 ## Simulation procedure
 1. Open Quartus Prime software and set the required module as Top-level Entity. (ex:- register.v)
