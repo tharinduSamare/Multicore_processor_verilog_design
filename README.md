@@ -10,6 +10,10 @@
 * Simulation codes are given for most of the modules. (except for the time count display module, UART system related modules) 
 * ModelSim or QuestaSim can be used for simulations.
 
+
+## Computational time vs Core count
+![plot](./images/speed_comparison.png)
+
 ## Synthesis procedure
 1. Set the "CORE_COUNT" in the [toFpga.v](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/toFpga.v) to set the number of cores in the multi-core proecessor.
 2. If requires to change the UART communication baud rate, set the "BAUD_RATE" in [to_Fpga.v](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/toFpga.v) and "baud_rate" in [processor_matrix_multiplication.py](https://github.com/tharinduSamare/Multicore_processor_Matrix_multiply_verilog_design/blob/main/python_code_for_synthesis/processor_matrix_multiplication.py). (Currently used value is 115200 for high speed transmission).

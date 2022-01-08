@@ -38,7 +38,7 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE115F29C7
-set_global_assignment -name TOP_LEVEL_ENTITY toFpga
+set_global_assignment -name TOP_LEVEL_ENTITY ALU
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 18.1.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "12:20:41  AUGUST 30, 2020"
 set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
@@ -609,7 +609,7 @@ set_global_assignment -name QIP_FILE IP_dataMem.qip
 set_global_assignment -name QIP_FILE IP_insMem.qip
 set_global_assignment -name VERILOG_FILE hex_display.v
 set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
-set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH processor_tb -section_id eda_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH ALU_tb -section_id eda_simulation
 set_global_assignment -name EDA_TEST_BENCH_NAME ALU_tb -section_id eda_simulation
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id ALU_tb
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME ALU_tb -section_id ALU_tb
@@ -631,28 +631,9 @@ set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME multi_core_processor_tb -
 set_global_assignment -name EDA_TEST_BENCH_NAME processor_tb -section_id eda_simulation
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id processor_tb
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME processor_tb -section_id processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE ALU_tb.v -section_id ALU_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE register_tb.v -section_id register_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE incRegister_tb.v -section_id incRegister_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE zReg_tb.v -section_id zReg_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE controlUnit_tb.v -section_id controlUnit_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE multi_core_processor_tb.v -section_id multi_core_processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE multiplexer.v -section_id multi_core_processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE processor.v -section_id multi_core_processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE RAM.v -section_id multi_core_processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE register.v -section_id multi_core_processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE zReg.v -section_id multi_core_processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE ALU.v -section_id multi_core_processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE controlUnit.v -section_id multi_core_processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE incRegister.v -section_id multi_core_processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE ALU.v -section_id processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE controlUnit.v -section_id processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE incRegister.v -section_id processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE multiplexer.v -section_id processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE RAM.v -section_id processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE register.v -section_id processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE zReg.v -section_id processor_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE processor_tb.v -section_id processor_tb
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to AUD_ADCDAT
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to AUD_ADCLRCK
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to AUD_BCLK
@@ -1178,7 +1159,26 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to VGA_R[6]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to VGA_R[7]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to VGA_SYNC_N
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to VGA_VS
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name EDA_TEST_BENCH_FILE ALU_tb.v -section_id ALU_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE register_tb.v -section_id register_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE incRegister_tb.v -section_id incRegister_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE zReg_tb.v -section_id zReg_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE controlUnit_tb.v -section_id controlUnit_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE multi_core_processor_tb.v -section_id multi_core_processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE multiplexer.v -section_id multi_core_processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE processor.v -section_id multi_core_processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE RAM.v -section_id multi_core_processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE register.v -section_id multi_core_processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE zReg.v -section_id multi_core_processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE ALU.v -section_id multi_core_processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE controlUnit.v -section_id multi_core_processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE incRegister.v -section_id multi_core_processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE ALU.v -section_id processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE controlUnit.v -section_id processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE incRegister.v -section_id processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE multiplexer.v -section_id processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE RAM.v -section_id processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE register.v -section_id processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE zReg.v -section_id processor_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE processor_tb.v -section_id processor_tb
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
